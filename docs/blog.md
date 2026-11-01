@@ -217,6 +217,9 @@ the talking points, which you review with the rest. When it is due, Braggarr com
 images to the site's branch, which builds the site, and knows the address before it commits: it is this site's permalink
 rule. Committing again finds the post there and changes nothing.
 
+Braggarr also writes the site's about page data, `_braggarr/` (see [Sections of a page](#sections-of-a-page)), as a pull
+request on the site's repository: see [the about page](setup.md#the-about-page).
+
 ## The theme
 
 One theme is compiled in (RazorSlices), which is what lets `braggarr` be a native binary. It cannot be replaced per site;

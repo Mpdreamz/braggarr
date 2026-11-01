@@ -29,7 +29,7 @@ else
 {
 	var briefs = await Model.BriefsAsync();
 	<table class="table">
-		<thead><tr><th>Project</th><th>Repository</th><th>Networks</th><th>Last release seen</th><th>Claude judges</th><th></th></tr></thead>
+		<thead><tr><th>Project</th><th>Repository</th><th>Networks</th><th>Last release seen</th><th>Claude judges</th><th>About page group</th><th></th></tr></thead>
 		<tbody>
 			@foreach (var p in Model.Projects)
 			{
@@ -59,12 +59,56 @@ else
 						}
 					</td>
 					<td>@(p.AskClaude ? "yes" : "no")</td>
+					<td>
+						<form method="post" class="inline" action="@Forms.Handler("/Projects", "Assign")">
+							<input type="hidden" name="repository" value="@p.Repository">
+							<select name="group" aria-label="About page group of @p.Name">
+								<option value="">None</option>
+								@foreach (var g in Model.Groups)
+								{
+									<option value="@g.Title" selected="@(p.Group == g.Title)">@g.Title</option>
+								}
+							</select>
+							<button class="link">Set</button>
+						@Forms.Token(HttpContext!)</form>
+					</td>
 					<td><form method="post" action="@Forms.Handler("/Projects", "Unwatch")"><button name="repository" value="@p.Repository" class="link danger">Stop watching</button>@Forms.Token(HttpContext!)</form></td>
 				</tr>
 			}
 		</tbody>
 	</table>
 }
+
+<section id="about" class="panel narrow">
+	<h2>About page</h2>
+	<p class="small quiet">The blog's about page shows these groups in this order, each with its public projects: their line from the brief, links, latest release, stars, icon and preview. It goes to the blog as a pull request you merge.</p>
+	@if (Model.Groups.Count > 0)
+	{
+		<ol class="groups">
+			@foreach (var g in Model.Groups)
+			{
+				<li>
+					<strong>@g.Title</strong>@if (g.Description is { } d) { <span class="small quiet"> · @d</span> }
+					<form method="post" class="inline" action="@Forms.Handler("/Projects", "MoveGroup")">
+						<input type="hidden" name="title" value="@g.Title">
+						<button name="direction" value="up" class="link" aria-label="Move @g.Title up">Up</button>
+						<button name="direction" value="down" class="link" aria-label="Move @g.Title down">Down</button>
+					@Forms.Token(HttpContext!)</form>
+					<form method="post" class="inline" action="@Forms.Handler("/Projects", "RemoveGroup")"><button name="title" value="@g.Title" class="link danger">Remove</button>@Forms.Token(HttpContext!)</form>
+				</li>
+			}
+		</ol>
+	}
+	<form method="post" class="form" action="@Forms.Handler("/Projects", "Group")">
+		<label>Group <input name="title" maxlength="@ProjectsModel.GroupTitleLimit" placeholder="For the Mac" required></label>
+		<label>What it is <input name="description" placeholder="Apps for Apple silicon"></label>
+		<button>Add or describe group</button>
+	@Forms.Token(HttpContext!)</form>
+	<form method="post" class="form" action="@Forms.Handler("/Projects", "About")">
+		<label class="check"><input type="checkbox" name="redraft" value="true"> Ask Claude for a new intro (else the blog's intro stays)</label>
+		<button class="primary">Propose the about page</button>
+	@Forms.Token(HttpContext!)</form>
+</section>
 
 <section id="add" class="panel narrow">
 	<h2>Add a project</h2>

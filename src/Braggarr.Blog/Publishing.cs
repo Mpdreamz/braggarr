@@ -55,4 +55,47 @@ public static class Publishing
 		});
 		return $"---\n{front.TrimEnd('\n')}\n---\n\n{markdown.Trim('\n')}\n";
 	}
+
+	public const string ProjectsFile = SiteReader.ProjectsFile;
+
+	public const string IntroFile = SiteReader.IntroFile;
+
+	public const string ProfilesFile = SiteReader.ProfilesFile;
+
+	/// <summary><c>_braggarr/projects.yml</c>: the groups in their order, each project as the site reads it back.</summary>
+	public static string WriteProjects(IEnumerable<ProjectGroup> groups) => SiteYaml.Write(new ProjectsDocument
+	{
+		Groups =
+		[
+			.. groups.Select(g => new GroupDocument
+			{
+				Title = g.Title,
+				Description = g.Description,
+				Projects =
+				[
+					.. g.Projects.Select(p => new ProjectDocument
+					{
+						Name = p.Name,
+						Repo = p.Repository,
+						Url = p.Url,
+						Tldr = p.Tldr,
+						Links = p.Links.Count == 0 ? null : [.. p.Links.Select(l => new LinkDocument { Title = l.Title, Url = l.Url })],
+						Release = p.Release is { } r
+							? new ReleaseDocument { Tag = r.Tag, Date = r.Date.ToString("yyyy-MM-dd'T'HH:mm:sszzz", CultureInfo.InvariantCulture), Url = r.Url }
+							: null,
+						Stars = p.Stars,
+						Language = p.Language,
+						Icon = p.Icon,
+						Image = p.Image
+					})
+				]
+			})
+		]
+	});
+
+	/// <summary><c>_braggarr/profiles.yml</c>: the owner's profiles, linked from the author card.</summary>
+	public static string WriteProfiles(IEnumerable<Profile> profiles) => SiteYaml.Write(new ProfilesDocument
+	{
+		Profiles = [.. profiles.Select(p => new ProfileDocument { Network = p.Network, Name = p.Name, Url = p.Url })]
+	});
 }

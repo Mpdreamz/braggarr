@@ -18,6 +18,8 @@ internal static partial class SiteYaml
 
 	public static string Write(NewPost front) => YamlSerializer.Serialize(front, SiteYamlContext.Default.NewPost);
 
+	public static string Write(ProjectsDocument projects) => YamlSerializer.Serialize(projects, SiteYamlContext.Default.ProjectsDocument);
+
 	public static string Write(ProfilesDocument profiles) => YamlSerializer.Serialize(profiles, SiteYamlContext.Default.ProfilesDocument);
 
 	public static string Write(PublishedFront front) => YamlSerializer.Serialize(front, SiteYamlContext.Default.PublishedFront);

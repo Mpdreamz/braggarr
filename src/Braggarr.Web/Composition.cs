@@ -150,6 +150,11 @@ public static class Composition
 		_ = services.AddHostedService<RepeatHost>();
 		_ = services.AddSingleton<IReleases, GitHubReleases>();
 		_ = services.AddSingleton<IRepositories, GitHubRepositories>();
+		// The about page: GitHub's facts and the websites' pictures for each project, proposed to the blog as a pull request.
+		_ = services.AddSingleton<IProjectFacts>(sp => new GitHubProjectFacts(sp.GetRequiredService<GitHubClient>(), sp.GetRequiredService<IReleases>(), Client(sp, "sites")));
+		_ = services.AddSingleton<IPictures>(sp => new Adapters.Blog.WebPictures(Client(sp, "sites")));
+		_ = services.AddSingleton<IAboutSites, Adapters.Blog.GitHubAboutSites>();
+		_ = services.AddSingleton<AboutService>();
 		_ = services.AddSingleton<Introducer>();
 		_ = services.AddSingleton<BackgroundWork>();
 		_ = services.AddHostedService(sp => sp.GetRequiredService<BackgroundWork>());

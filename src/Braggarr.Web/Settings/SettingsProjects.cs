@@ -14,9 +14,12 @@ public sealed class SettingsProjects(SettingsStore settings, Clock clock, TimePr
 			[.. p.Networks.Select(n => Networks.TryParse(n, out var network) ? network : (Network?)null).OfType<Network>()],
 			p.LastSeenTag,
 			p.IncludePrereleases,
-			p.AskClaude
+			p.AskClaude,
+			p.Group
 		))
 	];
+
+	public IReadOnlyList<AboutGroup> Groups => [.. settings.Current.ProjectGroups.Select(g => new AboutGroup(g.Title) { Description = g.Description })];
 
 	public TimeZoneInfo Zone => clock.Zone;
 

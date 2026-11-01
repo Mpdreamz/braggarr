@@ -186,6 +186,9 @@ public sealed class EchoDrafter : IDrafter, IDrafters
 		Task.FromResult((new ProfileSuggestion(request.Current.DisplayName ?? request.Current.Account, $"I make {string.Join(", ", request.About.Select(a => a.Project))}.",
 			request.About.SelectMany(a => a.Links).Select(l => l.Url).FirstOrDefault(), "Says what you make."), new Usage("claude-opus-5-5", 1, 1, 0, 0)));
 
+	public Task<(string Intro, Usage Usage)> IntroAsync(IntroRequest request, CancellationToken ct) =>
+		Task.FromResult(($"I build {string.Join(", ", request.Projects.Select(p => p.Project))}.", new Usage("claude-opus-5-5", 1, 1, 0, 0)));
+
 	public Task<(ProjectBrief Brief, Usage Usage)> BriefAsync(RepositoryInfo repository, CancellationToken ct) =>
 		Task.FromResult((new ProjectBrief(repository.Name, $"{repository.Name}: {repository.Description}", "It keeps diffs small.", "C# teams")
 		{

@@ -1,4 +1,4 @@
-POST /Projects?handler=Watch
+POST /Projects?handler=Group
 200 OK
 Cache-Control: no-store, no-cache
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self'; form-action 'self' https://github.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'
@@ -69,8 +69,22 @@ X-Frame-Options: DENY
 	<a class="tool" href="#add"><svg class="icon"><use href="#i-plus" /></svg><span>Add project</span></a>
 </div>
 		<div class="page">
-			 <p class="banner problem">Name the repository as owner/name, for example nullean/curb.</p> 
+			 <p class="banner problem">Give the group a title of at most 60 characters.</p> 
 	<p class="empty">No projects yet. A watched project's releases become proposed campaigns, judged by Claude first if you like.</p>
+
+<section id="about" class="panel narrow">
+	<h2>About page</h2>
+	<p class="small quiet">The blog's about page shows these groups in this order, each with its public projects: their line from the brief, links, latest release, stars, icon and preview. It goes to the blog as a pull request you merge.</p>
+	<form method="post" class="form" action="/Projects?handler=Group">
+		<label>Group <input name="title" maxlength="60" placeholder="For the Mac" required></label>
+		<label>What it is <input name="description" placeholder="Apps for Apple silicon"></label>
+		<button>Add or describe group</button>
+	<input name="__RequestVerificationToken" type="hidden" value="…" /></form>
+	<form method="post" class="form" action="/Projects?handler=About">
+		<label class="check"><input type="checkbox" name="redraft" value="true"> Ask Claude for a new intro (else the blog's intro stays)</label>
+		<button class="primary">Propose the about page</button>
+	<input name="__RequestVerificationToken" type="hidden" value="…" /></form>
+</section>
 
 <section id="add" class="panel narrow">
 	<h2>Add a project</h2>
