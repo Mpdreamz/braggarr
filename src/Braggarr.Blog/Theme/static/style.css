@@ -160,6 +160,17 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 
 .author-section .avatar { width: 96px; height: 96px; border-radius: 50%; }
 
+/* Where there is room, the author stands to the right and the page's text runs beside it. */
+@media (min-width: 40rem) {
+	.author-section { float: right; width: 11rem; margin: 0 0 1rem 1.5rem; }
+
+	.author-section .author { flex-direction: column; align-items: center; gap: 0.5rem; margin: 0; text-align: center; }
+
+	.author-section .avatar { width: 128px; height: 128px; }
+
+	.projects { clear: right; }
+}
+
 .project h3 a { color: var(--fg); text-decoration: none; }
 
 .project h3 a:hover { color: var(--accent); }
