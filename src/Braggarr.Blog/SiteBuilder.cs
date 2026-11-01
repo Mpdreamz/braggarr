@@ -101,13 +101,27 @@ public static class SiteBuilder
 			rendered.Add((path, post.Source, body));
 		}
 
+		string? script = null;
 		foreach (var page in site.Pages)
 		{
-			var body = MarkdownRenderer.Render(page.Markdown);
+			var body = MarkdownRenderer.Render(page.Markdown, sections: true);
+			diagnostics.AddRange(Sections(page, body, site));
+			var intro = body.Sections.Contains("intro") && site.Intro is { } text ? MarkdownRenderer.Render(text) : null;
+			if (body.Sections.Contains("projects") && site.Groups.Count > 0 && script is null)
+			{
+				var js = Theme("projects.js");
+				script = $"/_theme/projects.{Hash(js)}.js";
+				files[script.TrimStart('/')] = js;
+			}
 			var layout = Layout(page.Title, page.Path) with { Description = page.Description ?? MarkdownRenderer.Excerpt(page.Markdown) };
-			await Html(files, page.Path, PageView.Create(new PageModel(layout, page, body)), ct);
+			var model = new PageModel(layout, page, body) { Intro = intro, Script = body.Sections.Contains("projects") ? script : null };
+			await Html(files, page.Path, PageView.Create(model), ct);
 			await CopyAsync(source, root, page.Folder, page.Assets, page.Path, files, ct);
 			rendered.Add((page.Path, page.Source, body));
+			if (intro is not null)
+			{
+				rendered.Add((page.Path, SiteReader.IntroFile, intro));
+			}
 		}
 
 		foreach (var tag in plan.Tags)
@@ -127,6 +141,10 @@ public static class SiteBuilder
 		foreach (var file in site.Files)
 		{
 			files[file] = await source.File.ReadAllBytesAsync(source.Path.Combine(root, "static", file), ct);
+		}
+		foreach (var file in site.Media)
+		{
+			files["_braggarr/" + file] = await source.File.ReadAllBytesAsync(source.Path.Combine(root, "_braggarr", file), ct);
 		}
 
 		files[config.Feed] = Feed(plan, config);
@@ -237,6 +255,39 @@ public static class SiteBuilder
 		}
 		var resolved = new Uri(new Uri(new Uri("https://site.invalid"), from), target);
 		return resolved.AbsolutePath;
+	}
+
+	/// <summary>The sections a page can show, and the file each shows.</summary>
+	public static IReadOnlyDictionary<string, string> SectionFiles { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
+	{
+		["author"] = SiteReader.ConfigFile,
+		["intro"] = SiteReader.IntroFile,
+		["projects"] = SiteReader.ProjectsFile,
+		["profiles"] = SiteReader.ProfilesFile
+	};
+
+	/// <summary>What <c>--strict</c> fails on in a page's sections: one the theme does not have, or one whose file the site lacks.</summary>
+	internal static IEnumerable<Diagnostic> Sections(Page page, Rendered body, Site site)
+	{
+		foreach (var name in body.Sections.Distinct(StringComparer.Ordinal))
+		{
+			var has = name switch
+			{
+				"author" => true,
+				"intro" => site.Intro is not null,
+				"projects" => site.Groups.Count > 0,
+				"profiles" => site.Profiles.Count > 0,
+				_ => (bool?)null
+			};
+			if (has is null)
+			{
+				yield return Diagnostic.Warning(page.Source, $"{{{{ {name} }}}} is not a section: a page can show {string.Join(", ", SectionFiles.Keys.Select(k => $"{{{{ {k} }}}}"))}.");
+			}
+			else if (has == false)
+			{
+				yield return Diagnostic.Warning(page.Source, $"{{{{ {name} }}}} shows {SectionFiles[name]}, which this site does not have: Braggarr writes it.");
+			}
+		}
 	}
 
 	private static byte[] Theme(string name)

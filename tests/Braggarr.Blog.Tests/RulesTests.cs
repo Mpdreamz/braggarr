@@ -67,6 +67,11 @@ public class RulesTests
 				Posts = [.. s.Posts, Extra("shadow") with { Aliases = ["/here/"] }]
 			})
 			.CounterExample(SiteRules.ProfilesAreHttps, s => s with { Profiles = [.. s.Profiles, new Profile("mastodon", "http://hachyderm.io/@me")] })
+			.CounterExample(SiteRules.GroupsHaveTitles, s => s with { Groups = [.. s.Groups, new ProjectGroup(" ", [])] })
+			// The same project in a second group: every name and repository is fine, it is only there twice.
+			.CounterExample(SiteRules.EachProjectIsShownOnce, s => s with { Groups = [.. s.Groups, new ProjectGroup("Again", [new Project("curb", "nullean/curb")]), new ProjectGroup("And again", [new Project("curb", "nullean/curb")])] })
+			.CounterExample(SiteRules.ProjectLinksAreHttps, s => s with { Groups = [.. s.Groups, new ProjectGroup("Insecure", [new Project("old", "owner/old") { Links = [new ProjectLink("Docs", "http://old.example.com/")] }])] })
+			.CounterExample(SiteRules.ProjectPicturesAreThere, s => s with { Groups = [.. s.Groups, new ProjectGroup("Pictured", [new Project("gone", "owner/gone") { Icon = "media/gone.png" }])] })
 			.CounterExample(SiteRules.FilesStayInTheSite, s => s with { Files = [.. s.Files, "../outside.txt"] })
 			.AsDataSource();
 

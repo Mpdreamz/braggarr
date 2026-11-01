@@ -80,13 +80,32 @@ public static class Gens
 
 	public static readonly Gen<BlogPost> Posts = Gen.OneOfConst(Slugs).SelectMany(Post);
 
+	private static readonly Project[] Projects =
+	[
+		new("curb", "nullean/curb") { Tldr = "A formatter that keeps diffs small.", Stars = 12, Language = "C#", Icon = "media/curb.png", Image = "https://curb.example.com/card.png" },
+		new("heed", "heed-build/heed") { Url = "https://heed.example.com/", Links = [new ProjectLink("Docs", "https://heed.example.com/docs/")] },
+		new("Nullean.Entities", "nullean/entities") { Release = new Release("v0.3.0", new DateTimeOffset(2026, 10, 1, 9, 0, 0, TimeSpan.FromHours(2)), "https://github.com/nullean/entities/releases/tag/v0.3.0") },
+		new("site.tools", "owner/site.tools_2")
+	];
+
+	/// <summary>None, or the projects dealt into one to three groups, each in at most one.</summary>
+	public static readonly Gen<ValueList<ProjectGroup>> Groups =
+		from count in Gen.Int[0, 3]
+		from picks in Gen.Int[0, 3].Array[Projects.Length]
+		select Enumerable.Range(0, count)
+			.Select(g => new ProjectGroup(g == 0 ? "Developer tools" : $"Group {g}", [.. Projects.Where((_, i) => picks[i] == g)]) { Description = g == 0 ? "Small tools." : null })
+			.ToValueList();
+
 	public static readonly Gen<Site> Sites =
 		from config in Configs
 		from posts in Posts.Array[0, 7]
 		from about in Gen.Bool
-		select new Site(config, [.. posts.DistinctBy(p => p.Slug)], about ? [new Page("about", "About", "Who writes here.") { Aliases = ["/about-me.html"] }] : [])
+		from groups in Groups
+		select new Site(config, [.. posts.DistinctBy(p => p.Slug)], about ? [new Page("about", "About", "Who writes here.\n\n{{ projects }}") { Aliases = ["/about-me.html"] }] : [])
 		{
 			Profiles = [new Profile("bluesky", "https://bsky.app/profile/example.com")],
+			Groups = groups,
+			Media = ["media/curb.png"],
 			Files = config.Author.Avatar is "images/me.jpg" ? ["images/me.jpg"] : []
 		};
 

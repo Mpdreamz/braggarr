@@ -29,7 +29,8 @@ public sealed record ReadSite(Site? Site, IReadOnlyList<Diagnostic> Diagnostics)
 /// <item><c>braggarr.yml</c>, the config;</item>
 /// <item><c>posts/&lt;name&gt;/index.md</c> with the files beside it, or <c>posts/&lt;name&gt;.md</c>;</item>
 /// <item><c>pages/&lt;name&gt;.md</c> or <c>pages/&lt;name&gt;/index.md</c>;</item>
-/// <item><c>_braggarr/profiles.yml</c>, which Braggarr writes;</item>
+/// <item><c>_braggarr/profiles.yml</c>, <c>_braggarr/projects.yml</c>, <c>_braggarr/intro.md</c> and the projects' pictures in
+/// <c>_braggarr/media/</c>, which Braggarr writes;</item>
 /// <item><c>static/</c>, copied to the site's root as it is;</item>
 /// <item><c>head.html</c> and <c>footer.html</c>, added to every page.</item>
 /// </list>
@@ -41,6 +42,10 @@ public static partial class SiteReader
 	public const string ConfigFile = "braggarr.yml";
 
 	public const string ProfilesFile = "_braggarr/profiles.yml";
+
+	public const string ProjectsFile = "_braggarr/projects.yml";
+
+	public const string IntroFile = "_braggarr/intro.md";
 
 	public static async Task<ReadSite> ReadAsync(IFileSystem fs, string root, CancellationToken ct = default)
 	{
@@ -95,9 +100,16 @@ public static partial class SiteReader
 			? ReadProfiles(await fs.File.ReadAllTextAsync(profilesFile.FullName, ct), diagnostics)
 			: [];
 
+		var groups = byPath.TryGetValue(ProjectsFile, out var projectsFile)
+			? ReadProjects(await fs.File.ReadAllTextAsync(projectsFile.FullName, ct), diagnostics)
+			: [];
+
 		var site = new Site(config, [.. posts], [.. pages])
 		{
 			Profiles = profiles,
+			Groups = groups,
+			Intro = byPath.TryGetValue(IntroFile, out var intro) ? await fs.File.ReadAllTextAsync(intro.FullName, ct) : null,
+			Media = [.. byPath.Keys.Where(k => k.StartsWith("_braggarr/media/", StringComparison.Ordinal)).Select(k => k["_braggarr/".Length..]).Order(StringComparer.Ordinal)],
 			Files = [.. byPath.Keys.Where(k => k.StartsWith("static/", StringComparison.Ordinal)).Select(k => k["static/".Length..]).Order(StringComparer.Ordinal)],
 			Head = byPath.TryGetValue("head.html", out var head) ? await fs.File.ReadAllTextAsync(head.FullName, ct) : null,
 			Footer = byPath.TryGetValue("footer.html", out var footer) ? await fs.File.ReadAllTextAsync(footer.FullName, ct) : null
@@ -321,6 +333,43 @@ public static partial class SiteReader
 		{
 			diagnostics.Add(Diagnostic.Error(ProfilesFile, $"{ProfilesFile} is not valid YAML: {e.Message}"));
 			return [];
+		}
+	}
+
+	private static ValueList<ProjectGroup> ReadProjects(string yaml, List<Diagnostic> diagnostics)
+	{
+		ProjectsDocument document;
+		try
+		{
+			document = SiteYaml.Projects(yaml);
+		}
+		catch (Exception e) when (e is SharpYaml.YamlException or FormatException or InvalidOperationException)
+		{
+			diagnostics.Add(Diagnostic.Error(ProjectsFile, $"{ProjectsFile} is not valid YAML: {e.Message}"));
+			return [];
+		}
+		return [.. (document.Groups ?? []).Select(g => new ProjectGroup(g.Title ?? "", [.. (g.Projects ?? []).Select(Project)]) { Description = g.Description })];
+
+		Project Project(ProjectDocument p) => new(p.Name ?? "", p.Repo ?? "")
+		{
+			Tldr = p.Tldr,
+			Url = p.Url,
+			Links = [.. (p.Links ?? []).Select(l => new ProjectLink(l.Title ?? "", l.Url ?? ""))],
+			Release = p.Release is { } release ? Release(p.Name ?? p.Repo ?? "", release) : null,
+			Stars = p.Stars,
+			Language = p.Language,
+			Icon = p.Icon,
+			Image = p.Image
+		};
+
+		Release? Release(string project, ReleaseDocument release)
+		{
+			if (TryDate(release.Date ?? "", out var date, out _))
+			{
+				return new Release(release.Tag ?? "", date, release.Url ?? "");
+			}
+			diagnostics.Add(Diagnostic.Error(ProjectsFile, $"{project}'s release date \"{release.Date}\" is not a date: write it as 2026-11-02T09:00:00+01:00."));
+			return null;
 		}
 	}
 

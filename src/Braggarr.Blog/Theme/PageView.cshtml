@@ -5,5 +5,37 @@
 }
 <article class="page">
 	<h1>@Model.Page.Title</h1>
-	@(new HtmlString(Model.Body.Html))
+	@{ var parts = Model.Body.Parts(); }
+	@for (var i = 0; i < parts.Count; i++)
+	{
+		if (i % 2 == 0)
+		{
+			@(new HtmlString(parts[i]))
+		}
+		else if (parts[i] == "author")
+		{
+			<div class="author-section">@await RenderPartialAsync(AuthorCard.Create(Model.Layout))</div>
+		}
+		else if (parts[i] == "intro" && Model.Intro is { } intro)
+		{
+			<div class="intro-text">@(new HtmlString(intro.Html))</div>
+		}
+		else if (parts[i] == "projects" && Model.Layout.Site.Groups.Count > 0)
+		{
+			@await RenderPartialAsync(ProjectsSection.Create(new ProjectsModel(Model.Layout)))
+		}
+		else if (parts[i] == "profiles" && Model.Layout.Site.Profiles.Count > 0)
+		{
+			<ul class="profiles profiles-section">
+				@foreach (var profile in Model.Layout.Site.Profiles)
+				{
+					<li><a rel="me" href="@profile.Url">@(profile.Name ?? profile.Network)</a></li>
+				}
+			</ul>
+		}
+	}
 </article>
+@if (Model.Script is { } script)
+{
+	<script src="@Model.Layout.Href(script)" defer></script>
+}

@@ -2,7 +2,7 @@ using System.IO.Abstractions.TestingHelpers;
 
 namespace Braggarr.Blog.Tests;
 
-/// <summary>A site on a mock disk with one of everything: a post with an image beside it, a single-file post, a draft, a post dated later, a page, profiles, static files.</summary>
+/// <summary>A site on a mock disk with one of everything: a post with an image beside it, a single-file post, a draft, a post dated later, a page with its sections, profiles, projects, static files.</summary>
 public static class Sample
 {
 	public const string Root = "/site";
@@ -66,7 +66,45 @@ public static class Sample
 			aliases: [/about-me.html]
 			---
 
+			{{ author }}
+
 			Who writes here.
+
+			{{ intro }}
+
+			## What I make
+
+			{{ projects }}
+
+			## Elsewhere
+
+			{{ profiles }}
+			"""));
+		fs.AddFile($"{Root}/_braggarr/intro.md", new MockFileData("""
+			Sam builds small tools for .NET. Everything written here is in [the archive](/archive/).
+			"""));
+		fs.AddFile($"{Root}/_braggarr/projects.yml", new MockFileData("""
+			groups:
+			  - title: Developer tools
+			    description: Small tools that stay out of the way.
+			    projects:
+			      - name: curb
+			        repo: nullean/curb
+			        tldr: A C# formatter that keeps diffs small.
+			        icon: media/curb.png
+			        image: https://curb.example.com/card.png
+			        language: C#
+			        stars: 1234
+			        release: { tag: v1.0.0, date: "2026-11-02T09:00:00+01:00", url: https://github.com/nullean/curb/releases/tag/v1.0.0 }
+			        links:
+			          - { title: Docs, url: https://curb.example.com/docs/ }
+			      - name: heed
+			        repo: heed-build/heed
+			        url: https://heed.example.com/
+			  - title: Libraries
+			    projects:
+			      - name: Nullean.Entities
+			        repo: nullean/entities
 			"""));
 		fs.AddFile($"{Root}/_braggarr/profiles.yml", new MockFileData("""
 			profiles:
@@ -74,6 +112,7 @@ public static class Sample
 			    name: "@example.com"
 			    url: https://bsky.app/profile/example.com
 			"""));
+		fs.AddFile($"{Root}/_braggarr/media/curb.png", new MockFileData(Png));
 		fs.AddFile($"{Root}/static/images/me.jpg", new MockFileData(Png));
 		fs.AddFile($"{Root}/static/custom.css", new MockFileData("body { color: red; }"));
 		fs.AddFile($"{Root}/head.html", new MockFileData("<meta name=\"fediverse:creator\" content=\"@me@example.social\">"));
