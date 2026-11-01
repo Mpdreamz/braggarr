@@ -142,6 +142,10 @@ public static class SiteBuilder
 		{
 			files[file] = await source.File.ReadAllBytesAsync(source.Path.Combine(root, "static", file), ct);
 		}
+		foreach (var file in site.Media)
+		{
+			files["_braggarr/" + file] = await source.File.ReadAllBytesAsync(source.Path.Combine(root, "_braggarr", file), ct);
+		}
 
 		files[config.Feed] = Feed(plan, config);
 		files["sitemap.xml"] = Sitemap(plan, config);
@@ -256,6 +260,7 @@ public static class SiteBuilder
 	/// <summary>The sections a page can show, and the file each shows.</summary>
 	public static IReadOnlyDictionary<string, string> SectionFiles { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
 	{
+		["author"] = SiteReader.ConfigFile,
 		["intro"] = SiteReader.IntroFile,
 		["projects"] = SiteReader.ProjectsFile,
 		["profiles"] = SiteReader.ProfilesFile
@@ -268,6 +273,7 @@ public static class SiteBuilder
 		{
 			var has = name switch
 			{
+				"author" => true,
 				"intro" => site.Intro is not null,
 				"projects" => site.Groups.Count > 0,
 				"profiles" => site.Profiles.Count > 0,

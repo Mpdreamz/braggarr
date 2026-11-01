@@ -13,7 +13,17 @@
 				{
 					var posts = Model.PostsAbout(project).ToList();
 					<li class="project" data-project-repo="@project.Repository">
-						<h3><a href="@project.Href">@project.Name</a></h3>
+						@if (project.Image is { } image)
+						{
+							<a class="project-image" href="@project.Href" tabindex="-1" aria-hidden="true"><img src="@Model.PictureHref(image)" alt="" loading="lazy"></a>
+						}
+						<h3>
+							@if (project.Icon is { } icon)
+							{
+								<img class="project-icon" src="@Model.PictureHref(icon)" alt="" width="28" height="28">
+							}
+							<a href="@project.Href">@project.Name</a>
+						</h3>
 						<p class="project-meta">
 							@if (project.Language is { } language)
 							{

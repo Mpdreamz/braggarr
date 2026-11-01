@@ -88,6 +88,7 @@ Problems show as annotations on the files in the pull request.
 | `_braggarr/profiles.yml` | Written by Braggarr: the owner's profiles, linked from the author card with `rel="me"` |
 | `_braggarr/projects.yml` | Written by Braggarr: the owner's projects in their groups, shown where a page says `{{ projects }}` |
 | `_braggarr/intro.md` | Written by Braggarr and merged by the owner: an about text, shown where a page says `{{ intro }}` |
+| `_braggarr/media/` | Written by Braggarr: the projects' icons and previews, published at `/_braggarr/media/…` |
 
 A name may start with its date, `2026-11-02-curb-1-0`. The date is the post's when its front matter has none, and the rest
 is its slug. Hidden folders (`.git`, `.github`), `node_modules`, and anything reached through a link are never read.
@@ -128,6 +129,8 @@ text.
 title: About
 ---
 
+{{ author }}
+
 {{ intro }}
 
 ## What I make
@@ -141,8 +144,9 @@ title: About
 
 | Section | Shows |
 |---|---|
+| `{{ author }}` | The author from `braggarr.yml`: the avatar, large, with the name, the bio and the profiles |
 | `{{ intro }}` | `_braggarr/intro.md`, as markdown |
-| `{{ projects }}` | Each group of `_braggarr/projects.yml`, in order, with its description. Each project gets its line, its links, its language, its stars and latest release, and the posts on this site whose `project:` names it |
+| `{{ projects }}` | Each group of `_braggarr/projects.yml`, in the file's order, with its description. Each project gets its preview, its icon, its line, its links, its language, its stars and latest release, and the posts on this site whose `project:` names it |
 | `{{ profiles }}` | The profiles of `_braggarr/profiles.yml`, with `rel="me"` |
 
 A section the theme does not know, or whose file the site lacks, is a warning, so `--strict` fails on it. The stars and the
@@ -160,6 +164,8 @@ groups:
         repo: nullean/curb                 # owner/name on GitHub
         url: https://curb.example.com/     # where the name links; the repository when left out
         tldr: A C# formatter that keeps diffs small.
+        icon: media/curb-icon.png          # in _braggarr/media/, or an https address
+        image: media/curb-card.jpg         # its social preview, the same way
         language: C#
         stars: 37
         release: { tag: 0.10.1, date: "2026-11-01T10:34:25Z", url: https://github.com/nullean/curb/releases/tag/0.10.1 }

@@ -12,6 +12,10 @@
 		{
 			@(new HtmlString(parts[i]))
 		}
+		else if (parts[i] == "author")
+		{
+			<div class="author-section">@await RenderPartialAsync(AuthorCard.Create(Model.Layout))</div>
+		}
 		else if (parts[i] == "intro" && Model.Intro is { } intro)
 		{
 			<div class="intro-text">@(new HtmlString(intro.Html))</div>

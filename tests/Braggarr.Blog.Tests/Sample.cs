@@ -66,6 +66,8 @@ public static class Sample
 			aliases: [/about-me.html]
 			---
 
+			{{ author }}
+
 			Who writes here.
 
 			{{ intro }}
@@ -89,6 +91,8 @@ public static class Sample
 			      - name: curb
 			        repo: nullean/curb
 			        tldr: A C# formatter that keeps diffs small.
+			        icon: media/curb.png
+			        image: https://curb.example.com/card.png
 			        language: C#
 			        stars: 1234
 			        release: { tag: v1.0.0, date: "2026-11-02T09:00:00+01:00", url: https://github.com/nullean/curb/releases/tag/v1.0.0 }
@@ -108,6 +112,7 @@ public static class Sample
 			    name: "@example.com"
 			    url: https://bsky.app/profile/example.com
 			"""));
+		fs.AddFile($"{Root}/_braggarr/media/curb.png", new MockFileData(Png));
 		fs.AddFile($"{Root}/static/images/me.jpg", new MockFileData(Png));
 		fs.AddFile($"{Root}/static/custom.css", new MockFileData("body { color: red; }"));
 		fs.AddFile($"{Root}/head.html", new MockFileData("<meta name=\"fediverse:creator\" content=\"@me@example.social\">"));

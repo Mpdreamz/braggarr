@@ -82,7 +82,7 @@ public static class Gens
 
 	private static readonly Project[] Projects =
 	[
-		new("curb", "nullean/curb") { Tldr = "A formatter that keeps diffs small.", Stars = 12, Language = "C#" },
+		new("curb", "nullean/curb") { Tldr = "A formatter that keeps diffs small.", Stars = 12, Language = "C#", Icon = "media/curb.png", Image = "https://curb.example.com/card.png" },
 		new("heed", "heed-build/heed") { Url = "https://heed.example.com/", Links = [new ProjectLink("Docs", "https://heed.example.com/docs/")] },
 		new("Nullean.Entities", "nullean/entities") { Release = new Release("v0.3.0", new DateTimeOffset(2026, 10, 1, 9, 0, 0, TimeSpan.FromHours(2)), "https://github.com/nullean/entities/releases/tag/v0.3.0") },
 		new("site.tools", "owner/site.tools_2")
@@ -105,6 +105,7 @@ public static class Gens
 		{
 			Profiles = [new Profile("bluesky", "https://bsky.app/profile/example.com")],
 			Groups = groups,
+			Media = ["media/curb.png"],
 			Files = config.Author.Avatar is "images/me.jpg" ? ["images/me.jpg"] : []
 		};
 

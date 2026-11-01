@@ -71,6 +71,7 @@ public class RulesTests
 			// The same project in a second group: every name and repository is fine, it is only there twice.
 			.CounterExample(SiteRules.EachProjectIsShownOnce, s => s with { Groups = [.. s.Groups, new ProjectGroup("Again", [new Project("curb", "nullean/curb")]), new ProjectGroup("And again", [new Project("curb", "nullean/curb")])] })
 			.CounterExample(SiteRules.ProjectLinksAreHttps, s => s with { Groups = [.. s.Groups, new ProjectGroup("Insecure", [new Project("old", "owner/old") { Links = [new ProjectLink("Docs", "http://old.example.com/")] }])] })
+			.CounterExample(SiteRules.ProjectPicturesAreThere, s => s with { Groups = [.. s.Groups, new ProjectGroup("Pictured", [new Project("gone", "owner/gone") { Icon = "media/gone.png" }])] })
 			.CounterExample(SiteRules.FilesStayInTheSite, s => s with { Files = [.. s.Files, "../outside.txt"] })
 			.AsDataSource();
 

@@ -20,7 +20,7 @@ public class SiteBuilderTests
 			"about/index.html", "about-me.html", "articles/curb-2026-11-02/index.html",
 			"tags/dotnet/index.html", "tags/release/index.html", "archive/index.html",
 			"404.html", "feed.xml", "sitemap.xml", "robots.txt",
-			"custom.css", "images/me.jpg"
+			"custom.css", "images/me.jpg", "_braggarr/media/curb.png"
 		]);
 		built.Files.Keys.Should().ContainSingle(k => k.StartsWith("_theme/style.", StringComparison.Ordinal) && k.EndsWith(".css", StringComparison.Ordinal));
 	}
@@ -157,7 +157,7 @@ public class SiteBuilderTests
 		fs.File.ReadAllText("/out/index.html").Should().Be("new");
 	}
 
-	/// <summary>A disk holding the files a generated site names: the covers beside its posts, its avatar.</summary>
+	/// <summary>A disk holding the files a generated site names: the covers beside its posts, its avatar, its projects' pictures.</summary>
 	private static MockFileSystem WorldFor(Site site)
 	{
 		var fs = new MockFileSystem();
@@ -172,6 +172,10 @@ public class SiteBuilderTests
 		foreach (var file in site.Files)
 		{
 			fs.AddFile($"{Sample.Root}/static/{file}", new MockFileData(Sample.Png));
+		}
+		foreach (var file in site.Media)
+		{
+			fs.AddFile($"{Sample.Root}/_braggarr/{file}", new MockFileData(Sample.Png));
 		}
 		return fs;
 	}

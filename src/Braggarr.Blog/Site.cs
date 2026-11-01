@@ -50,6 +50,12 @@ public sealed record Project(string Name, string Repository)
 
 	public string? Language { get; init; }
 
+	/// <summary>Its logo, small and square: a file in <c>_braggarr/media/</c> (<c>media/curb.png</c>), or an https address.</summary>
+	public string? Icon { get; init; }
+
+	/// <summary>Its social preview, the picture its links show: a file in <c>_braggarr/media/</c>, or an https address.</summary>
+	public string? Image { get; init; }
+
 	public string Href => Url ?? $"https://github.com/{Repository}";
 
 	/// <summary>Whether a post is about this project: its <c>project</c> names it, or its repository.</summary>
@@ -74,6 +80,9 @@ public sealed record Site(SiteConfig Config, ValueList<BlogPost> Posts, ValueLis
 	/// <summary>The about text Braggarr drafted and the owner merged (<c>_braggarr/intro.md</c>), shown where a page says <c>{{ intro }}</c>.</summary>
 	public string? Intro { get; init; }
 
+	/// <summary>The pictures Braggarr saved for the projects, relative to <c>_braggarr/</c>: <c>media/curb.png</c>. Published at <c>/_braggarr/media/…</c>.</summary>
+	public ValueList<string> Media { get; init; } = [];
+
 	/// <summary>The site's own files, relative to its root: <c>images/me.jpg</c>, <c>_static/custom.css</c>.</summary>
 	public ValueList<string> Files { get; init; } = [];
 
@@ -84,7 +93,7 @@ public sealed record Site(SiteConfig Config, ValueList<BlogPost> Posts, ValueLis
 	public string? Footer { get; init; }
 
 	/// <summary>Paths the theme writes itself, which no post, page or alias may take.</summary>
-	public static IReadOnlyList<string> Reserved { get; } = ["/", "/archive/", "/tags/", "/page/", "/_theme/", "/404.html", "/sitemap.xml", "/robots.txt"];
+	public static IReadOnlyList<string> Reserved { get; } = ["/", "/archive/", "/tags/", "/page/", "/_theme/", "/_braggarr/", "/404.html", "/sitemap.xml", "/robots.txt"];
 
 	/// <summary>Every path a post or a page lives at, in reading order.</summary>
 	public IEnumerable<string> Paths() => Posts.Select(p => p.Permalink(Config)).Concat(Pages.Select(p => p.Path));
@@ -166,8 +175,8 @@ public static partial class SiteRules
 	public static readonly Constraint<Site> NothingTakesTheThemesPaths = Constraints<Site>.Always(
 		s => !s.Paths().Concat(s.Redirects().Select(r => r.From)).Any(p => Site.Reserved.Contains(p, StringComparer.OrdinalIgnoreCase)
 			|| p.StartsWith("/page/", StringComparison.OrdinalIgnoreCase) || p.StartsWith("/tags/", StringComparison.OrdinalIgnoreCase)
-			|| p.StartsWith("/_theme/", StringComparison.OrdinalIgnoreCase) || p.Equals("/" + s.Config.Feed, StringComparison.OrdinalIgnoreCase)),
-		"No post, page or alias takes a path the theme writes: /, /page/…, /tags/…, /archive/, /_theme/…, the feed, the sitemap."
+			|| p.StartsWith("/_theme/", StringComparison.OrdinalIgnoreCase) || p.StartsWith("/_braggarr/", StringComparison.OrdinalIgnoreCase) || p.Equals("/" + s.Config.Feed, StringComparison.OrdinalIgnoreCase)),
+		"No post, page or alias takes a path the theme writes: /, /page/…, /tags/…, /archive/, /_theme/…, /_braggarr/…, the feed, the sitemap."
 	);
 
 	public static readonly Constraint<Site> AliasesAreUnique = Constraints<Site>.Always(
@@ -205,8 +214,14 @@ public static partial class SiteRules
 		"A project's site, its links and its release link over https, and each link and release says what it is."
 	);
 
+	public static readonly Constraint<Site> ProjectPicturesAreThere = Constraints<Site>.Always(
+		s => s.Groups.SelectMany(g => g.Projects).SelectMany(p => new[] { p.Icon, p.Image }).OfType<string>()
+			.All(picture => SiteConfigRules.IsHttps(picture) || s.Media.Contains(picture)),
+		"A project's icon and image are files in _braggarr/media/ (media/curb.png) or https addresses."
+	);
+
 	public static readonly Constraint<Site> FilesStayInTheSite = Constraints<Site>.Always(
-		s => s.Files.All(SiteConfigRules.IsSiteFile),
+		s => s.Files.Concat(s.Media).All(SiteConfigRules.IsSiteFile),
 		"The site's files are below its root: none is hidden or reached through .."
 	);
 

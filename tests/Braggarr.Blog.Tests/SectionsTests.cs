@@ -20,6 +20,8 @@ public class SectionsTests
 		{
 			Tldr = "A C# formatter that keeps diffs small.",
 			Language = "C#",
+			Icon = "media/curb.png",
+			Image = "https://curb.example.com/card.png",
 			Stars = 1234,
 			Release = new Release("v1.0.0", new DateTimeOffset(2026, 11, 2, 9, 0, 0, TimeSpan.FromHours(1)), "https://github.com/nullean/curb/releases/tag/v1.0.0"),
 			Links = [new ProjectLink("Docs", "https://curb.example.com/docs/")]
@@ -34,7 +36,7 @@ public class SectionsTests
 		var html = built.Text("about/index.html");
 
 		html.Should().NotContain("\0").And.NotContain("{{");
-		html.IndexOf("Who writes here.", StringComparison.Ordinal).Should()
+		html.IndexOf("<p>Who writes here.</p>", StringComparison.Ordinal).Should()
 			.BeLessThan(html.IndexOf("Sam builds small tools", StringComparison.Ordinal)).And
 			.BeLessThan(html.IndexOf("What I make", StringComparison.Ordinal));
 		html.IndexOf("What I make", StringComparison.Ordinal).Should().BeLessThan(html.IndexOf("Developer tools", StringComparison.Ordinal));
@@ -44,8 +46,8 @@ public class SectionsTests
 		html.Should().Contain("<h2 id=\"developer-tools\">Developer tools</h2>");
 		html.Should().Contain("<p class=\"group-description\">Small tools that stay out of the way.</p>");
 		html.Should().Contain("<li class=\"project\" data-project-repo=\"nullean/curb\">");
-		html.Should().Contain("<h3><a href=\"https://github.com/nullean/curb\">curb</a></h3>");
-		html.Should().Contain("<h3><a href=\"https://heed.example.com/\">heed</a></h3>");
+		html.Should().Contain("<a href=\"https://github.com/nullean/curb\">curb</a>");
+		html.Should().Contain("<a href=\"https://heed.example.com/\">heed</a>");
 		html.Should().Contain("<p class=\"tldr\">A C# formatter that keeps diffs small.</p>");
 		html.Should().Contain("<span class=\"language\">C#</span>");
 		html.Should().Contain("<span data-count>1,234</span>");
@@ -53,6 +55,40 @@ public class SectionsTests
 		html.Should().Contain("<li><a href=\"https://curb.example.com/docs/\">Docs</a></li>");
 		html.Should().Contain("<a rel=\"me\" href=\"https://bsky.app/profile/example.com\">@example.com</a>");
 		html.Should().Contain("<meta name=\"description\" content=\"Who writes here.\">");
+	}
+
+	[Test]
+	public async Task A_project_shows_its_icon_and_its_preview_saved_with_the_site_or_linked()
+	{
+		var (_, built, _) = await Sample.BuildAsync();
+		var curb = Project(built.Text("about/index.html"), "nullean/curb");
+
+		curb.Should().Contain("<img class=\"project-icon\" src=\"/_braggarr/media/curb.png\" alt=\"\" width=\"28\" height=\"28\">");
+		curb.Should().Contain("<a class=\"project-image\" href=\"https://github.com/nullean/curb\" tabindex=\"-1\" aria-hidden=\"true\"><img src=\"https://curb.example.com/card.png\" alt=\"\" loading=\"lazy\"></a>");
+		built.Files["_braggarr/media/curb.png"].Should().Equal(Sample.Png);
+		Project(built.Text("about/index.html"), "heed-build/heed").Should().NotContain("<img");
+	}
+
+	[Test]
+	public async Task No_page_takes_an_address_where_the_projects_pictures_are_published()
+	{
+		var fs = Sample.Disk();
+		fs.AddFile($"{Sample.Root}/pages/moved.md", new MockFileData("---\ntitle: Moved\naliases: [/_braggarr/media/curb.png]\n---\n\nHere now.\n"));
+
+		var read = await SiteReader.ReadAsync(fs, Sample.Root);
+
+		read.Diagnostics.Should().ContainSingle().Which.Message.Should().StartWith("No post, page or alias takes a path the theme writes");
+	}
+
+	[Test]
+	public async Task The_author_section_shows_the_avatar_and_name_at_the_top()
+	{
+		var (_, built, _) = await Sample.BuildAsync();
+		var html = built.Text("about/index.html");
+
+		var section = html.IndexOf("<div class=\"author-section\">", StringComparison.Ordinal);
+		section.Should().BeGreaterThan(0).And.BeLessThan(html.IndexOf("<p>Who writes here.</p>", StringComparison.Ordinal));
+		html[section..].Should().Contain("<img class=\"avatar\" src=\"/images/me.jpg\"").And.Contain("<p class=\"author-name\">Sam</p>");
 	}
 
 	[Test]
@@ -129,7 +165,7 @@ public class SectionsTests
 		[
 			Diagnostic.Warning("pages/about.md", "{{ intro }} shows _braggarr/intro.md, which this site does not have: Braggarr writes it."),
 			Diagnostic.Warning("pages/about.md", "{{ projects }} shows _braggarr/projects.yml, which this site does not have: Braggarr writes it."),
-			Diagnostic.Warning("pages/more.md", "{{ project }} is not a section: a page can show {{ intro }}, {{ projects }}, {{ profiles }}.")
+			Diagnostic.Warning("pages/more.md", "{{ project }} is not a section: a page can show {{ author }}, {{ intro }}, {{ projects }}, {{ profiles }}.")
 		]);
 		built.Text("about/index.html").Should().NotContain("\0").And.NotContain("project-group");
 		built.Files.Keys.Should().NotContain(k => k.StartsWith("_theme/projects.", StringComparison.Ordinal));

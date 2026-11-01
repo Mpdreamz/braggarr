@@ -92,6 +92,9 @@ public sealed record ProjectsModel(LayoutModel Layout)
 
 	public string PostHref(BlogPost post) => Layout.Href(post.Permalink(Layout.Config));
 
+	/// <summary>A project's picture as a link: as it is when it is an https address, else where the build publishes <c>_braggarr/</c>.</summary>
+	public string PictureHref(string picture) => SiteConfigRules.IsHttps(picture) ? picture : Layout.Href("/_braggarr/" + picture);
+
 	public static string Count(int stars) => stars.ToString("N0", CultureInfo.InvariantCulture);
 }
 

@@ -167,6 +167,8 @@ public sealed class ProjectDocument
 	public ReleaseDocument? Release { get; set; }
 	public int? Stars { get; set; }
 	public string? Language { get; set; }
+	public string? Icon { get; set; }
+	public string? Image { get; set; }
 }
 
 public sealed class LinkDocument
