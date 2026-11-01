@@ -72,7 +72,7 @@ X-Frame-Options: DENY
 		<div class="page">
 			 <p class="banner action">Watching nullean/fresh. Its current release is remembered on the first check; the next one becomes a proposal.</p> 
 	<table class="table">
-		<thead><tr><th>Project</th><th>Repository</th><th>Networks</th><th>Last release seen</th><th>Claude judges</th><th></th></tr></thead>
+		<thead><tr><th>Project</th><th>Repository</th><th>Networks</th><th>Last release seen</th><th>Claude judges</th><th>About page group</th><th></th></tr></thead>
 		<tbody>
 				<tr>
 					<td>
@@ -85,10 +85,33 @@ X-Frame-Options: DENY
 						not checked yet
 					</td>
 					<td>no</td>
+					<td>
+						<form method="post" class="inline" action="/Projects?handler=Assign">
+							<input type="hidden" name="repository" value="nullean/fresh">
+							<select name="group" aria-label="About page group of fresh">
+								<option value="">None</option>
+							</select>
+							<button class="link">Set</button>
+						<input name="__RequestVerificationToken" type="hidden" value="…" /></form>
+					</td>
 					<td><form method="post" action="/Projects?handler=Unwatch"><button name="repository" value="nullean/fresh" class="link danger">Stop watching</button><input name="__RequestVerificationToken" type="hidden" value="…" /></form></td>
 				</tr>
 		</tbody>
 	</table>
+
+<section id="about" class="panel narrow">
+	<h2>About page</h2>
+	<p class="small quiet">The blog's about page shows these groups in this order, each with its public projects: their line from the brief, links, latest release, stars, icon and preview. It goes to the blog as a pull request you merge.</p>
+	<form method="post" class="form" action="/Projects?handler=Group">
+		<label>Group <input name="title" maxlength="60" placeholder="For the Mac" required></label>
+		<label>What it is <input name="description" placeholder="Apps for Apple silicon"></label>
+		<button>Add or describe group</button>
+	<input name="__RequestVerificationToken" type="hidden" value="…" /></form>
+	<form method="post" class="form" action="/Projects?handler=About">
+		<label class="check"><input type="checkbox" name="redraft" value="true"> Ask Claude for a new intro (else the blog's intro stays)</label>
+		<button class="primary">Propose the about page</button>
+	<input name="__RequestVerificationToken" type="hidden" value="…" /></form>
+</section>
 
 <section id="add" class="panel narrow">
 	<h2>Add a project</h2>

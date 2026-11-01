@@ -118,4 +118,8 @@ public sealed class GitHubClient(HttpClient http, IGitHubToken token, IOptionsMo
 [JsonSerializable(typeof(GitHubRepositories.Repo))]
 [JsonSerializable(typeof(Blog.BlogPublisher.Contents))]
 [JsonSerializable(typeof(GitHubRepositories.Readme))]
+[JsonSerializable(typeof(GitHubProjectFacts.Repo), TypeInfoPropertyName = "FactsRepo")]
+[JsonSerializable(typeof(GitHubProjectFacts.GraphQuery))]
+[JsonSerializable(typeof(GitHubProjectFacts.GraphAnswer))]
+[JsonSerializable(typeof(Blog.GitHubAboutSites.ForceRef))]
 internal sealed partial class GitHubJson : JsonSerializerContext;

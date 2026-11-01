@@ -51,6 +51,9 @@ public sealed record BraggarrSettings
 	/// <summary>Projects whose GitHub releases become proposed campaigns.</summary>
 	public IReadOnlyList<ProjectSettings> Projects { get; set; } = [];
 
+	/// <summary>The groups projects are sorted into on the blog's about page, in the order the page shows them.</summary>
+	public IReadOnlyList<ProjectGroupSettings> ProjectGroups { get; set; } = [];
+
 	/// <summary>
 	/// Proxies whose X-Forwarded-* headers are believed: addresses, or networks such as the Docker network Braggarr shares with
 	/// a reverse proxy (<c>172.19.0.0/16</c>). Empty: no forwarded header is read.
@@ -82,8 +85,12 @@ public sealed record ProjectSettings(
 	string? LastSeenTag = null,
 	bool IncludePrereleases = false,
 	bool AskClaude = true,
-	SkippedRelease? LastSkipped = null
+	SkippedRelease? LastSkipped = null,
+	string? Group = null
 );
+
+/// <summary>A group on the blog's about page: its title, and a line on what the group is.</summary>
+public sealed record ProjectGroupSettings(string Title, string? Description = null);
 
 /// <summary>
 /// The account a network posts as for everything (neither <see cref="Org"/> nor <see cref="Project"/>), for a GitHub org's

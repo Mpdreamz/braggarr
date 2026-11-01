@@ -171,6 +171,20 @@ public sealed class ClaudeDrafter(HttpClient http, ClaudeOptions options, TimePr
 		}
 	}
 
+	public async Task<(string Intro, Services.Usage Usage)> IntroAsync(IntroRequest request, CancellationToken ct)
+	{
+		var (json, usage) = await StructuredAsync(DraftPrompt.Intro(request), DraftPrompt.IntroSchema, "write the intro", ct);
+		try
+		{
+			var intro = json.GetProperty("intro").GetString()?.Trim() ?? "";
+			return intro.Length > 0 ? (intro, usage) : throw new DraftException("Claude's intro was empty.");
+		}
+		catch (Exception e) when (e is KeyNotFoundException or InvalidOperationException)
+		{
+			throw new DraftException("Claude's intro was not the JSON that was asked for.", e);
+		}
+	}
+
 	/// <summary>One question with a JSON answer of the given shape.</summary>
 	private async Task<(JsonElement Json, Services.Usage Usage)> StructuredAsync(string prompt, JsonElement schema, string what, CancellationToken ct)
 	{

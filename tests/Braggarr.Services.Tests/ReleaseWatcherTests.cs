@@ -25,6 +25,8 @@ public class ReleaseWatcherTests
 
 		public IReadOnlyList<WatchedProject> All => List;
 
+		public IReadOnlyList<AboutGroup> Groups => [];
+
 		public TimeZoneInfo Zone => Amsterdam;
 
 		public List<(string Repository, string Tag, string Reason)> Skipped { get; } = [];

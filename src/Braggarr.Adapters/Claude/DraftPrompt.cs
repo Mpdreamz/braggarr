@@ -244,6 +244,39 @@ public static class DraftPrompt
 		return text.ToString();
 	}
 
+	/// <summary>The request for an about page's intro: what the owner builds, from the briefs of the projects the page shows, in the voice.</summary>
+	public static string Intro(IntroRequest request)
+	{
+		var text = new StringBuilder("""
+			Write the intro of the owner's about page, on their blog: a short paragraph, two to four sentences, in the first person,
+			in markdown. It sits above the list of the owner's projects, which shows each one's name, line and links, so do not list
+			them again: say what the owner builds, for whom, and what ties the projects together, with one or two concrete details
+			from the briefs. Plain and specific, no hype words, no headings, no links.
+
+			Only what the briefs say: never invent projects, numbers, employers or titles. What never to say about a project, in its
+			brief, holds here too.
+
+
+			""");
+		foreach (var about in request.Projects)
+		{
+			_ = text.Append(About(about)).Append("\n\n");
+		}
+		if (!string.IsNullOrWhiteSpace(request.Voice))
+		{
+			_ = text.Append("<voice>\n").Append(request.Voice.Trim()).Append("\n</voice>\n");
+		}
+		return text.ToString();
+	}
+
+	public static readonly JsonElement IntroSchema = Schemas.Element(new JsonObject
+	{
+		["type"] = "object",
+		["additionalProperties"] = false,
+		["required"] = new JsonArray("intro"),
+		["properties"] = new JsonObject { ["intro"] = new JsonObject { ["type"] = "string" } }
+	});
+
 	public static readonly JsonElement ProfileSchema = Schemas.Element(new JsonObject
 	{
 		["type"] = "object",

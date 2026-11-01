@@ -48,6 +48,17 @@ public sealed class FakeDrafter : IDrafter
 	/// <summary>The brief to answer with; a refusal when not set.</summary>
 	public ProjectBrief? Brief { get; set; }
 
+	/// <summary>The intro to answer with; refuses when null.</summary>
+	public string? Intro { get; set; }
+
+	public List<IntroRequest> IntrosAsked { get; } = [];
+
+	public Task<(string Intro, Usage Usage)> IntroAsync(IntroRequest request, CancellationToken ct)
+	{
+		IntrosAsked.Add(request);
+		return Intro is { } intro ? Task.FromResult((intro, new Usage("claude-opus-5-5", 1000, 100, 0, 0))) : throw new DraftException("No intro scripted.");
+	}
+
 	public Task<(ProjectBrief Brief, Usage Usage)> BriefAsync(RepositoryInfo repository, CancellationToken ct) =>
 		Brief is { } brief ? Task.FromResult((brief, new Usage("claude-opus-5-5", 2000, 300, 0, 0))) : throw new DraftException("No brief scripted.");
 

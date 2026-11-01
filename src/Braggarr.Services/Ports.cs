@@ -282,9 +282,15 @@ public interface IDrafter
 	/// <summary>A brief for a project from its repository: what it is in a line, what sets it apart, for whom, and its links.</summary>
 	Task<(ProjectBrief Brief, Usage Usage)> BriefAsync(RepositoryInfo repository, CancellationToken ct);
 
+	/// <summary>The about page's intro, in markdown: what the owner builds, from the briefs of the projects it shows.</summary>
+	Task<(string Intro, Usage Usage)> IntroAsync(IntroRequest request, CancellationToken ct);
+
 	/// <summary>Whether a release is worth announcing, why, and from what angle.</summary>
 	Task<(ReleaseVerdict Verdict, Usage Usage)> JudgeAsync(string project, Release release, CancellationToken ct);
 }
+
+/// <summary>What Claude writes an about page's intro from: the briefs of the projects the page shows, and the voice.</summary>
+public sealed record IntroRequest(IReadOnlyList<ProjectBrief> Projects, string? Voice);
 
 /// <summary>A model's call on a release: worth a post or not, the reason in a sentence, and the angle to take if it is.</summary>
 public sealed record ReleaseVerdict(bool Worthy, string Reason, string? Angle);
@@ -345,13 +351,17 @@ public sealed record WatchedProject(
 	IReadOnlyList<Network> Networks,
 	string? LastSeenTag,
 	bool IncludePrereleases = false,
-	bool AskClaude = true
+	bool AskClaude = true,
+	string? Group = null
 );
 
 /// <summary>The watched projects and where Braggarr keeps what it has seen.</summary>
 public interface IWatchedProjects
 {
 	IReadOnlyList<WatchedProject> All { get; }
+
+	/// <summary>The groups the owner sorts projects into on the about page, in the owner's order.</summary>
+	IReadOnlyList<AboutGroup> Groups { get; }
 
 	/// <summary>The owner's time zone, so a release is announced at a sensible hour.</summary>
 	TimeZoneInfo Zone { get; }
@@ -395,4 +405,55 @@ public sealed record PointsRequest(string Title, string Project, string Brief, I
 {
 	/// <summary>The owner's brief for the project, when there is one.</summary>
 	public ProjectBrief? About { get; init; }
+}
+
+/// <summary>
+/// What GitHub says of a project's repository, and the pictures it and its website offer: an icon (the site's
+/// apple-touch-icon, else its SVG icon, else its largest PNG) and a social preview (the site's og:image, else the
+/// repository's own social preview; never GitHub's generated card).
+/// </summary>
+public sealed record ProjectFacts(string Repository, ProjectVisibility Visibility)
+{
+	public int? Stars { get; init; }
+
+	public string? Language { get; init; }
+
+	public string? Homepage { get; init; }
+
+	public AboutRelease? Release { get; init; }
+
+	public string? IconUrl { get; init; }
+
+	public string? ImageUrl { get; init; }
+}
+
+/// <summary>Reads a repository's facts. Visibility is <see cref="ProjectVisibility.Unknown"/> when GitHub will not say.</summary>
+public interface IProjectFacts
+{
+	Task<ProjectFacts> ReadAsync(string repository, CancellationToken ct);
+}
+
+/// <summary>A picture fetched from the web: its file extension (<c>.png</c>) and its bytes.</summary>
+public sealed record Picture(string Extension, byte[] Bytes);
+
+/// <summary>Fetches a picture. Null when it is not one, is too large, or does not answer.</summary>
+public interface IPictures
+{
+	Task<Picture?> FetchAsync(string url, CancellationToken ct);
+}
+
+/// <summary>The pull request an about page went to its site as.</summary>
+public sealed record AboutProposal(int Number, string Url);
+
+/// <summary>A blog site's about page: what it shows now, and a change to it, proposed as one pull request.</summary>
+public interface IAboutSites
+{
+	/// <summary>The intro the site shows now, on its branch; null when it has none.</summary>
+	Task<string?> IntroAsync(string site, CancellationToken ct);
+
+	/// <summary>
+	/// Proposes <paramref name="page"/> and its pictures (by their names in the page) as the site's about page: one pull request,
+	/// updated while it is open. Null when the site already shows exactly this.
+	/// </summary>
+	Task<AboutProposal?> ProposeAsync(string site, AboutPage page, IReadOnlyDictionary<string, byte[]> media, CancellationToken ct);
 }

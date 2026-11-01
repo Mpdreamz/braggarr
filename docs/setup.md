@@ -111,6 +111,24 @@ Adding a project can also propose an **introduction campaign** (on by default): 
 launch post plus follow-ups that each zoom in on one feature, spread over the next weeks. It is planned in the background and
 opens as a proposal when ready, with a notice.
 
+## The about page
+
+A blog's about page can show your projects ([sections of a page](blog.md#sections-of-a-page)). Under Watched projects →
+About page, add the groups the page shows, in order, each with a line on what it is, and put projects in them. Then
+**Propose the about page**: in the background, Braggarr puts together
+
+- each group with its projects that GitHub says are public (a private project, or one GitHub will not show, is left off, and
+  nothing of it is fetched), in the order you watch them;
+- for each: the line and links of its brief, its latest release, its stars and language, and its pictures. The icon is its
+  website's apple-touch-icon, else its SVG icon, else its largest PNG; the preview is its website's `og:image`, else the
+  repository's own social preview, never GitHub's generated card. Pictures are saved with the page, in `_braggarr/media/`;
+- an intro: the one the site has stays, unless you ask Claude for a new one; a site without one gets one when Claude is set up;
+- your profiles that have an https address.
+
+It goes to the blog the defaults choose as one pull request, on the branch `braggarr/about`, kept up to date while it is
+open; a notice links it. When the site already shows exactly this, nothing is proposed. The site's own text in
+`pages/about.md` is never touched.
+
 ## Notifications
 
 Set an ntfy topic in Settings (long and random on ntfy.sh, where anyone who knows it can read it) and subscribe to it in the ntfy
