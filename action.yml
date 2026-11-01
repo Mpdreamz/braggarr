@@ -30,4 +30,4 @@ inputs:
 # it reads the inputs above from their INPUT_* variables and builds.
 runs:
   using: docker
-  image: docker://ghcr.io/mpdreamz/braggarr-cli:edge
+  image: docker://ghcr.io/mpdreamz/braggarr:edge

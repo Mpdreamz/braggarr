@@ -22,12 +22,12 @@ braggarr blog build --strict  # .artifacts/site, failing on warnings too
   curl -fsSL https://raw.githubusercontent.com/Mpdreamz/braggarr/main/install.sh | sh
   ```
 
-- **The image:** `ghcr.io/mpdreamz/braggarr-cli` (`edge` follows main, `latest` the last release). It holds only the binary,
+- **The image:** `ghcr.io/mpdreamz/braggarr` (`edge` follows main, `latest` the last release). It holds only the binary,
   on Ubuntu's chiseled base (the variant with ICU and time zones, which the server in the same binary uses), and runs as
   uid 1001:
 
   ```sh
-  docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/site" -w /site ghcr.io/mpdreamz/braggarr-cli:edge blog build --strict
+  docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/site" -w /site ghcr.io/mpdreamz/braggarr:edge blog build --strict
   ```
 
 - **From source:** `dotnet run --project src/Braggarr.Cli -- blog serve --path ../my-blog`.
