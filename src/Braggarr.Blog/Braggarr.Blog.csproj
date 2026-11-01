@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <!-- The blog: a site's config, its posts and pages, the rules they keep, and the built-in theme that renders them to static
+       files. AOT-safe, because the braggarr CLI is published as Native AOT; the web app uses it too, for previews and
+       permalinks. It depends on nothing of Braggarr's own, and a test in Braggarr.Blog.Tests keeps it that way. -->
+  <PropertyGroup>
+    <IsAotCompatible>true</IsAotCompatible>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <EnableDefaultRazorSlices>false</EnableDefaultRazorSlices>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nullean.Entities" />
+    <PackageReference Include="Nullean.Entities.FileSystem" />
+    <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="SharpYaml" />
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="RazorSlices" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RazorSlice Include="Theme/**/*.cshtml" Exclude="Theme/_ViewImports.cshtml" />
+    <EmbeddedResource Include="Theme/static/**" LogicalName="theme/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Braggarr.Blog.Tests" />
+  </ItemGroup>
+
+</Project>

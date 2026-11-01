@@ -1,0 +1,7 @@
+@inherits RazorSlice<LayoutModel>
+@implements IUsesLayout<Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => Model;
+}
+<h1>Not found</h1>
+<p>There is nothing at this address. The <a href="@Model.Href("/archive/")">archive</a> lists every post.</p>

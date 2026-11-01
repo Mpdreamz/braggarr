@@ -1,0 +1,876 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Braggarr.Web | v1",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost/"
+    }
+  ],
+  "paths": {
+    "/healthz": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/login/callback": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/setup/start": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/setup/app": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/settings/youtube/connect": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/settings/youtube/callback": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/videos/{name}": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/campaigns/{slug}/media/{file}": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "file",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{slug}": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/blog": {
+      "post": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlogRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{slug}/posts": {
+      "post": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{slug}/posts/{post}/redraft": {
+      "post": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "post",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedraftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/campaigns/{slug}/media": {
+      "post": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "$ref": "#/components/schemas/IFormFile"
+                      }
+                    }
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/introduce": {
+      "post": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntroduceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/calendar": {
+      "get": {
+        "tags": [
+          "Braggarr.Web"
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ArticleRequest": {
+        "required": [
+          "title",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tags": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "slug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cover": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "coverAlt": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "A blog post\u0027s own fields: its title (at most 100 characters), a description for feeds and previews (at most 160), tags\n(lowercase slugs), the slug its address is made from (from the title when left out), and a cover in the campaign\u0027s media."
+      },
+      "BlogRequest": {
+        "required": [
+          "project",
+          "title",
+          "description",
+          "markdown"
+        ],
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "markdown": {
+            "type": "string"
+          },
+          "tags": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "announce": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "slug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "links": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "campaignSlug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "A blog post as an agent proposes it: one article about a public project, which becomes a small campaign of its own\n(\u0060blog-\u0026lt;slug\u0026gt;\u0060) the owner reviews like any other. \u0060announce\u0060 names networks whose posts link the article\nhalf an hour after it goes up; Claude writes them. \u0060at\u0060 is when it goes up: ten tomorrow morning when left out."
+      },
+      "CampaignRequest": {
+        "required": [
+          "slug",
+          "title",
+          "project",
+          "networks",
+          "links",
+          "brief"
+        ],
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "project": {
+            "type": "string"
+          },
+          "networks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "links": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "brief": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "posts": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PostRequest"
+            }
+          },
+          "repeatMonths": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "points": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PointRequest"
+            }
+          },
+          "start": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "accounts": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "A campaign as an agent proposes it. Whatever it says, it becomes a proposal the owner reviews."
+      },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      },
+      "IntroduceRequest": {
+        "required": [
+          "repository",
+          "name",
+          "networks"
+        ],
+        "type": "object",
+        "properties": {
+          "repository": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "networks": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PointRequest": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "wanted": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/WantedRequest"
+            }
+          }
+        },
+        "description": "One thing worth saying, in a sentence, and the media that would show it."
+      },
+      "PostRequest": {
+        "required": [
+          "id",
+          "at",
+          "variants"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "variants": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "networks": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "points": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          "article": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ArticleRequest"
+              }
+            ]
+          }
+        },
+        "description": "A post as an agent sends it: when, and the text per network (keys are network names: \u0060bluesky\u0060, \u0060hackernews\u0060\u2026).\nNetworks left out are drafted by Claude when it is set up. \u0060networks\u0060 limits it to some of the campaign\u0027s, and\n\u0060points\u0060 names the talking points it covers, counted from 1."
+      },
+      "RedraftRequest": {
+        "required": [
+          "network",
+          "note"
+        ],
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "description": "Asks for one variant of a proposal to be written again, with an optional note on what to change."
+      },
+      "WantedRequest": {
+        "required": [
+          "kind",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "description": "Media a talking point wants made: \u0060image\u0060 or \u0060video\u0060, and what it should show."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Braggarr.Web"
+    }
+  ]
+}

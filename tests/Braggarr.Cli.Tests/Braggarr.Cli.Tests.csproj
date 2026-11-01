@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="AwesomeAssertions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Braggarr.Cli/Braggarr.Cli.csproj" />
+  </ItemGroup>
+
+</Project>

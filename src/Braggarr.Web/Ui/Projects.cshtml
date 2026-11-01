@@ -1,0 +1,86 @@
+@inherits RazorSlice<ProjectsModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Projects", Toolbar: true);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		if (name == "Toolbar")
+		{
+<text>
+	<a class="tool" href="#add"><svg class="icon"><use href="#i-plus" /></svg><span>Add project</span></a>
+	@if (Model.Projects.Count > 0)
+	{
+		<form method="post" action="@Forms.Handler("/Projects", "Check")"><button class="tool"><svg class="icon"><use href="#i-sync" /></svg><span>Check releases</span></button>@Forms.Token(HttpContext!)</form>
+	}
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@if (Model.Message is { } message) { <p class="banner action">@message</p> }
+@if (Model.Problem is { } problem) { <p class="banner problem">@problem</p> }
+
+@if (Model.Projects.Count == 0)
+{
+	<p class="empty">No projects yet. A watched project's releases become proposed campaigns, judged by Claude first if you like.</p>
+}
+else
+{
+	var briefs = await Model.BriefsAsync();
+	<table class="table">
+		<thead><tr><th>Project</th><th>Repository</th><th>Networks</th><th>Last release seen</th><th>Claude judges</th><th></th></tr></thead>
+		<tbody>
+			@foreach (var p in Model.Projects)
+			{
+				<tr>
+					<td>
+						<strong><a href="@ProjectModel.Href(p.Name)">@p.Name</a></strong>
+						@if (briefs.FirstOrDefault(b => ProjectBrief.Slug(b.Project) == ProjectBrief.Slug(p.Name)) is { } brief)
+						{
+							<div class="small quiet">@brief.Tldr</div>
+						}
+						else
+						{
+							<div class="small"><a href="@ProjectModel.Href(p.Name)">Write its brief</a></div>
+						}
+					</td>
+					<td><a href="https://github.com/@p.Repository">@p.Repository</a></td>
+					<td class="small nets">@foreach (var name in p.Networks) { if (Networks.TryParse(name, out var pn)) { <span title="@NetworkIcons.Name(pn)" role="img" aria-label="@NetworkIcons.Name(pn)">@NetworkIcons.Icon(pn)</span> } }</td>
+					<td>
+						@(p.LastSeenTag ?? "not checked yet")
+						@if (p.LastSkipped is { } skipped)
+						{
+							<div class="small quiet">Skipped @skipped.Tag: @skipped.Reason</div>
+							<form method="post" class="inline" action="@Forms.Handler("/Projects", "ProposeAnyway")">
+								<input type="hidden" name="repository" value="@p.Repository">
+								<button name="tag" value="@skipped.Tag" class="link">Propose @skipped.Tag anyway</button>
+							@Forms.Token(HttpContext!)</form>
+						}
+					</td>
+					<td>@(p.AskClaude ? "yes" : "no")</td>
+					<td><form method="post" action="@Forms.Handler("/Projects", "Unwatch")"><button name="repository" value="@p.Repository" class="link danger">Stop watching</button>@Forms.Token(HttpContext!)</form></td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+<section id="add" class="panel narrow">
+	<h2>Add a project</h2>
+	<form method="post" class="form" action="@Forms.Handler("/Projects", "Watch")">
+		<label>Repository <input name="repository" placeholder="nullean/curb" required></label>
+		<label>Name <input name="name" placeholder="Curb"></label>
+		<fieldset class="networks-pick">
+			<legend>Announce on</legend>
+			@foreach (var n in Networks.All)
+			{
+				<label class="check"><input type="checkbox" name="networks" value="@n" checked="@(!n.IsManual() && n != Network.Blog)"> @NetworkIcons.Named(n)</label>
+			}
+		</fieldset>
+		<label class="check"><input type="checkbox" name="introduce" value="true" checked> Propose an introduction campaign: its talking points, ranked, each feature worth it getting a post of its own</label>
+		<label class="check"><input type="checkbox" name="askClaude" value="true" checked> Let Claude judge each release first: dependency bumps, CI changes and small fixes are skipped</label>
+		<label class="check"><input type="checkbox" name="prereleases" value="true"> Prereleases too</label>
+		<button class="primary">Add project</button>
+	@Forms.Token(HttpContext!)</form>
+</section>

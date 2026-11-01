@@ -1,0 +1,23 @@
+@inherits RazorSlice<Braggarr.Web.Ui.MediaModel>
+@{
+	var m = Model.Media;
+}
+@if (m.IsWanted)
+{
+	@* A slot a talking point asked for, not made yet: it goes out without it if still empty when the post is due. *@
+	<figure class="image wanted">
+		<div class="slot"><svg class="icon"><use href="#i-@(m.IsVideo ? "video" : "image")" /></svg><span>@(m.IsVideo ? "Video wanted" : "Image wanted")</span></div>
+		<figcaption>@m.Alt</figcaption>
+	</figure>
+}
+else if (m.IsStoredVideo)
+{
+	<figure class="image video">
+		<video controls preload="metadata" src="/videos/@m.Path[Braggarr.Domain.MediaRef.VideoPrefix.Length..]" aria-label="@m.Alt"></video>
+		<figcaption>@m.Alt</figcaption>
+	</figure>
+}
+else
+{
+	<figure class="image"><img src="/campaigns/@Model.Slug/@m.Path" alt="@m.Alt" loading="lazy"><figcaption>@m.Alt</figcaption></figure>
+}

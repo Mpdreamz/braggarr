@@ -1,0 +1,73 @@
+@inherits RazorSlice<Braggarr.Web.Ui.Setup.IndexModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Set up");
+}
+@{
+	var s = Model.Settings;
+	var appCreated = s.GitHubApp.AppId > 0;
+}
+<section class="narrow">
+	<h1>Set up Braggarr</h1>
+	@if (!Model.CanSetUp)
+	{
+		<p>Setting up needs the link with the one-time token that Braggarr printed to its log when it started:</p>
+		<pre>docker logs braggarr 2>&amp;1 | grep setup/start</pre>
+		<p class="quiet">Already set up? <a href="/login">Sign in with GitHub</a>.</p>
+	}
+	else
+	{
+		@if (Model.Problem is { } problem) { <p class="banner problem">@problem</p> }
+		<ol class="steps">
+			<li class="@(s.PostsRepository is null ? "now" : "done")">
+				<h2>The posts repo</h2>
+				<p>A private GitHub repository that holds your campaigns and the record of what went out. Create an empty one first.</p>
+				<form method="post" class="inline" action="@Forms.Handler("/Setup", "Repository")">
+					<input name="Repository" value="@s.PostsRepository" placeholder="owner/braggarr-posts" required>
+					<button>@(s.PostsRepository is null ? "Use this repo" : "Change")</button>
+				@Forms.Token(HttpContext!)</form>
+			</li>
+			<li class="@(appCreated ? "done" : s.PostsRepository is null ? "" : "now")">
+				<h2>Braggarr's GitHub App</h2>
+				@if (appCreated)
+				{
+					<p>Created: <a href="https://github.com/settings/apps/@s.GitHubApp.Slug">@s.GitHubApp.Slug</a>. It signs you in and works on the posts repo, nothing else.</p>
+				}
+				else if (s.PostsRepository is not null)
+				{
+					<p>GitHub creates a private app with read and write access to contents, pull requests and issues. You only confirm its name.</p>
+					<form method="post" action="https://github.com/settings/apps/new?state=@Model.State">
+						<input type="hidden" name="manifest" value="@Model.Manifest">
+						<button class="primary">Create the app on GitHub</button>
+					</form>
+				}
+			</li>
+			<li class="@(Model.Installed ? "done" : appCreated ? "now" : "")">
+				<h2>Install it on the posts repo</h2>
+				@if (Model.Installed) { <p>Installed on @s.PostsRepository.</p> }
+				else if (appCreated)
+				{
+					<p>Choose <strong>Only select repositories</strong> and pick @s.PostsRepository.</p>
+					<p><a class="button primary" href="https://github.com/apps/@s.GitHubApp.Slug/installations/new">Install on GitHub</a></p>
+				}
+			</li>
+			<li class="@(s.Owner is not null ? "done" : Model.Installed ? "now" : "")">
+				<h2>Sign in</h2>
+				@if (s.Owner is { } owner) { <p>@owner.Login is the owner. Only this GitHub account can sign in.</p> }
+				else if (Model.Installed) { <p>The account you sign in with becomes the owner, and the only one that gets in.</p><p><a class="button primary" href="/login">Sign in with GitHub</a></p> }
+			</li>
+			<li class="@(Model.Prepared ? "done" : s.Owner is not null && Model.Installed ? "now" : "")">
+				<h2>Starter files</h2>
+				@if (Model.Prepared) { <p>The posts repo has its README and <code>voice.md</code>.</p> }
+				else if (s.Owner is not null && Model.Installed)
+				{
+					<form method="post" action="@Forms.Handler("/Setup", "Prepare")"><button class="primary">Add the README and voice.md</button>@Forms.Token(HttpContext!)</form>
+				}
+			</li>
+		</ol>
+		@if (s.IsSetUp && Model.Prepared)
+		{
+			<p>Braggarr is set up. Next: connect your networks and make a key for your agents in <a href="/Settings">Settings</a>.</p>
+		}
+	}
+</section>

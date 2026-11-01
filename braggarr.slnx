@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Braggarr.Adapters/Braggarr.Adapters.csproj" />
+    <Project Path="src/Braggarr.Blog/Braggarr.Blog.csproj" />
+    <Project Path="src/Braggarr.Cli/Braggarr.Cli.csproj" />
+    <Project Path="src/Braggarr.Domain/Braggarr.Domain.csproj" />
+    <Project Path="src/Braggarr.Services/Braggarr.Services.csproj" />
+    <Project Path="src/Braggarr.Web/Braggarr.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Braggarr.Blog.Tests/Braggarr.Blog.Tests.csproj" />
+    <Project Path="tests/Braggarr.Cli.Tests/Braggarr.Cli.Tests.csproj" />
+    <Project Path="tests/Braggarr.Domain.Tests/Braggarr.Domain.Tests.csproj" />
+    <Project Path="tests/Braggarr.Services.Tests/Braggarr.Services.Tests.csproj" />
+    <Project Path="tests/Braggarr.Web.Tests/Braggarr.Web.Tests.csproj" />
+  </Folder>
+</Solution>

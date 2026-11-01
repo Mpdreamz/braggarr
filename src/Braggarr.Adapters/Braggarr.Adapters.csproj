@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The ports' implementations: the posts repo (files, git, GitHub), the networks, notifications and secrets. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Braggarr.Services/Braggarr.Services.csproj" />
+    <ProjectReference Include="../Braggarr.Blog/Braggarr.Blog.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nullean.Entities.FileSystem" />
+    <PackageReference Include="Nullean.ScopedFileSystem" />
+    <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="SharpYaml" />
+    <PackageReference Include="System.IO.Hashing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Braggarr.Web.Tests" />
+  </ItemGroup>
+
+</Project>

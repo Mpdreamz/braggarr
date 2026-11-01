@@ -1,0 +1,8 @@
+POST /repos/me/posts/git/blobs
+{"content":"iVBORw==","encoding":"base64"}
+POST /repos/me/posts/git/trees
+{"base_tree":"head-tree","tree":[{"path":"campaigns/curb-1-0/campaign.md","mode":"100644","type":"blob","content":"---\ntitle: Curb 1.0\nproject: curb\nnetworks:\n  - bluesky\n  - reddit\nlinks:\n  - \u0022https://github.com/nullean/curb\u0022\ncreated_by: \u0022agent:release-bot\u0022\nheld: null\nrepeat_months: null\npoints:\n  - text: Keeps diffs small\n---\n\nBrief.\n"},{"path":"campaigns/curb-1-0/01-launch.md","mode":"100644","type":"blob","content":"---\nat: \u00222026-11-02T09:00:00\u002B01:00\u0022\n---\n\n## bluesky\n\nCurb 1.0 is out.\n\n![A diff with one changed line](media/card.png)\n\n## reddit\n\nI made a C# formatter\n\nIt keeps diffs small.\n"},{"path":"campaigns/curb-1-0/media/card.png","mode":"100644","type":"blob","sha":"blob-sha"},{"path":"campaigns/curb-1-0/02-gone.md","mode":"100644","type":"blob","sha":null}]}
+POST /repos/me/posts/git/commits
+{"message":"Update curb-1-0\n\nBy owner:mpdreamz.","tree":"new-tree","parents":["head-sha"]}
+PATCH /repos/me/posts/git/refs/heads/campaign/curb-1-0
+{"sha":"new-commit"}

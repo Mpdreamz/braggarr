@@ -1,0 +1,7 @@
+302 Found
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self'; form-action 'self' https://github.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'
+Location: http://localhost/login?ReturnUrl=%2FLogout
+Referrer-Policy: same-origin
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+

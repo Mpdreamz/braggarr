@@ -1,0 +1,19 @@
+@inherits RazorSlice<Braggarr.Web.CampaignCard>
+<a class="poster-card" href="@Model.Href">
+	<div class="poster hue-@Model.Hue">
+		<span class="poster-initials">@Model.Initials</span>
+		<span class="poster-project">@Model.Project</span>
+		<span class="ribbon ribbon-@Model.State">@Model.StateLabel</span>
+	</div>
+	<div class="progress"><div class="bar w-@Model.ProgressStep"></div></div>
+	<div class="poster-body">
+		<strong class="poster-title">@Model.Title</strong>
+		<span class="poster-meta">@Model.Meta</span>
+		<span class="dots">
+			@foreach (var (network, state) in Model.Networks)
+			{
+				<span class="dot dot-@state" title="@NetworkIcons.Name(network): @state" role="img" aria-label="@NetworkIcons.Name(network): @state">@NetworkIcons.Icon(network)</span>
+			}
+		</span>
+	</div>
+</a>

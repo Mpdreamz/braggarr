@@ -1,0 +1,47 @@
+name: braggarr publish
+description: "Build a blog with braggarr and deploy it to GitHub Pages. The calling job needs `pages: write` and `id-token: write`."
+
+branding:
+  icon: book-open
+  color: orange
+
+inputs:
+  path:
+    description: The site's folder (the one with braggarr.yml), relative to the repository.
+    required: false
+    default: "."
+  strict:
+    description: Fail on warnings too.
+    required: false
+    default: "true"
+  url:
+    description: The site's address for this build, instead of the url in braggarr.yml.
+    required: false
+
+outputs:
+  page_url:
+    description: Where GitHub Pages serves the site.
+    value: ${{ steps.deployment.outputs.page_url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Configure Pages
+      uses: actions/configure-pages@v6
+
+    - name: Build
+      uses: Mpdreamz/braggarr@main
+      with:
+        path: ${{ inputs.path }}
+        output: .artifacts/site
+        strict: ${{ inputs.strict }}
+        url: ${{ inputs.url }}
+
+    - name: Upload
+      uses: actions/upload-pages-artifact@v5
+      with:
+        path: .artifacts/site
+
+    - name: Deploy
+      id: deployment
+      uses: actions/deploy-pages@v5

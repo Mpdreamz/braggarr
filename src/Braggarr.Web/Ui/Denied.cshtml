@@ -1,0 +1,10 @@
+@inherits RazorSlice<DeniedModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Not you");
+}
+<section class="narrow">
+	<h1>Only the owner gets in</h1>
+	<p>Braggarr lets one GitHub account in: the one that set it up. If that is you, <a href="/login">sign in with GitHub</a> again.</p>
+	<p class="quiet">Setting Braggarr up? Use the link with the setup token from the container log.</p>
+</section>

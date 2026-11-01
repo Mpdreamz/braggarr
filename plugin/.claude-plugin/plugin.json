@@ -1,0 +1,6 @@
+{
+  "name": "braggarr",
+  "version": "0.4.0",
+  "description": "Propose campaigns to Braggarr from a session: its MCP tools, /brag and /blog commands, a skill for writing a good brief, and a nudge after a release.",
+  "author": { "name": "Martijn Laarman" }
+}

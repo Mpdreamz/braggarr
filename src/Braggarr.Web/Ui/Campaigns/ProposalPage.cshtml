@@ -1,0 +1,111 @@
+@inherits RazorSlice<Braggarr.Web.Ui.Campaigns.ProposalModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new(Model.Proposal!.Campaign.Title, Toolbar: true);
+
+	private string Number => Model.Proposal!.Number.ToString(global::System.Globalization.CultureInfo.InvariantCulture);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		if (name == "Toolbar")
+		{
+<text>
+	<a class="tool" href="/"><svg class="icon"><use href="#i-left" /></svg><span>Campaigns</span></a>
+	<form method="post">
+		<button class="tool tool-good" formaction="@Forms.Handler("/Campaigns/Proposal", "Approve", ("number", Number))"><svg class="icon"><use href="#i-check" /></svg><span>Approve and merge</span></button>
+		<button class="tool tool-bad" formaction="@Forms.Handler("/Campaigns/Proposal", "Reject", ("number", Number))"><svg class="icon"><use href="#i-x" /></svg><span>Reject</span></button>
+	@Forms.Token(HttpContext!)</form>
+	<a class="tool" href="@Model.Proposal!.Url"><svg class="icon"><use href="#i-link" /></svg><span>Pull request #@Model.Proposal.Number</span></a>
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@{
+	var c = Model.Proposal!.Campaign;
+}
+<header class="hero">
+	@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Poster.Create(CampaignCard.From(Model.Proposal, Model.Clock)))
+	<div class="hero-text">
+		<h1>@c.Title</h1>
+		<p class="pills">
+			<a class="pill" href="@ProjectModel.Href(c.Project)" title="The project">@c.Project</a>
+			<span class="pill">proposed by @c.CreatedBy</span>
+			<span class="pill">@c.Posts.Count @(c.Posts.Count == 1 ? "post" : "posts")</span>
+			@if (c.RepeatMonths > 0)
+			{
+				<span class="pill">repeats every @c.RepeatMonths months</span>
+			}
+		</p>
+		@if (!string.IsNullOrWhiteSpace(c.Brief))
+		{
+			<p class="brief">@c.Brief</p>
+		}
+		<p class="quiet small">Approving merges the pull request; Braggarr then posts each one at its time.</p>
+	</div>
+</header>
+@if (Model.Problems.Count > 0)
+{
+	<div class="banner problem"><p>Not approved:</p><ul>@foreach (var p in Model.Problems) { <li>@p</li> }</ul></div>
+}
+@await RenderPartialAsync(Braggarr.Web.Ui.Shared._PostingAs.Create(new(c, Model.AccountsOn, Model.Proposal.Number)))
+@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Judgement.Create(new(c, Model.Judge, Model.Clock)))
+@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Points.Create(c))
+@foreach (var post in c.Posts)
+{
+	<section class="post">
+		<h2>@post.Id <span class="quiet">· @Model.Clock.Full(post.At)</span></h2>
+		@await RenderPartialAsync(Braggarr.Web.Ui.Shared._PostAbout.Create(new(c, post)))
+		<div class="variants">
+			@foreach (var network in post.NetworksIn(c))
+			{
+				var v = post.For(network);
+				<article class="variant @(v is { Fits: true, MediaFits: true } ? "" : "bad")">
+					<header>
+						<strong>@NetworkIcons.Named(network)</strong>
+						@if (v is not null && network != Network.Blog)
+						{
+							<span class="count">@Lengths.Measure(network, v.Text) / @Lengths.Limit(network)</span>
+						}
+					</header>
+					@if (v is null) { <p class="quiet">No variant for @network.</p> }
+					else
+					{
+						@if (v.Article is not null)
+						{
+							@:@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Article.Create(new(c.Slug, v)))
+						}
+						else
+						{
+						<p class="text">@v.Text</p>
+						}
+						@foreach (var m in v.Media)
+						{
+							@:@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Media.Create(new(c.Slug, m)))
+						}
+					}
+					@if (Model.CanDraft)
+					{
+						<form method="post" class="redraft" action="@Forms.Handler("/Campaigns/Proposal", "Redraft", ("number", Number))">
+							<input type="hidden" name="post" value="@post.Id">
+							<input type="hidden" name="network" value="@network">
+							<input name="note" placeholder="What to change (optional)">
+							<button>@(v is null ? "Write it" : "Write again")</button>
+						@Forms.Token(HttpContext!)</form>
+					}
+				</article>
+			}
+		</div>
+		@await RenderPartialAsync(Braggarr.Web.Ui.Shared._PostEdit.Create(Model.Editor(post)))
+		@if (post.NetworksIn(c).Any(n => Lengths.MediaLimit(n) > 0))
+		{
+			<form method="post" enctype="multipart/form-data" class="image-add" action="@Forms.Handler("/Campaigns/Proposal", "Image", ("number", Number))">
+				<input type="hidden" name="post" value="@post.Id">
+				<label>@(post.Variants.Any(v => v.Media.Any(m => m.IsWanted)) ? "Fill what is wanted for" : "Add an image or a video to") @post.Id <input type="file" name="file" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4" required></label>
+				<input name="alt" placeholder="@(Model.CanDraft ? "Alt text (Claude writes an image's; a video takes its slot's)" : "Alt text")">
+				<button>Add</button>
+			@Forms.Token(HttpContext!)</form>
+		}
+	</section>
+}
+

@@ -1,0 +1,6 @@
+PUT /repos/me/posts/pulls/7/merge
+{"merge_method":"squash","commit_title":"Approve curb-1-0 (#7)","commit_message":"Approved by owner:mpdreamz."}
+POST /repos/me/posts/issues/7/comments
+{"body":"Rejected by owner:mpdreamz."}
+PATCH /repos/me/posts/pulls/7
+{"state":"closed"}

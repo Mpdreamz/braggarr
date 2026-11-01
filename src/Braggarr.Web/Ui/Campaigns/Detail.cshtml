@@ -1,0 +1,144 @@
+@inherits RazorSlice<Braggarr.Web.Ui.Campaigns.DetailModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new(Model.Campaign!.Title, Toolbar: true);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		var c = Model.Campaign!;
+		if (name == "Toolbar")
+		{
+<text>
+	<a class="tool" href="/"><svg class="icon"><use href="#i-left" /></svg><span>Campaigns</span></a>
+	<form method="post">
+		@if (c.NeedsApproval)
+		{
+			<button class="tool tool-good" formaction="@Forms.Handler("/Campaigns/Detail", "Reapprove", ("slug", c.Slug))"><svg class="icon"><use href="#i-check" /></svg><span>Approve again</span></button>
+		}
+		@if (c.Status == CampaignStatus.Held)
+		{
+			<button class="tool" formaction="@Forms.Handler("/Campaigns/Detail", "Resume", ("slug", c.Slug))"><svg class="icon"><use href="#i-play" /></svg><span>Resume</span></button>
+		}
+		else
+		{
+			<button class="tool" formaction="@Forms.Handler("/Campaigns/Detail", "Hold", ("slug", c.Slug))"><svg class="icon"><use href="#i-pause" /></svg><span>Hold</span></button>
+		}
+	@Forms.Token(HttpContext!)</form>
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@{
+	var c = Model.Campaign!;
+}
+<header class="hero">
+	@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Poster.Create(CampaignCard.From(c, Model.Schedule, Model.Clock)))
+	<div class="hero-text">
+		<h1>@c.Title</h1>
+		<p class="pills">
+			<a class="pill" href="@ProjectModel.Href(c.Project)" title="The project">@c.Project</a>
+			<span class="pill">@c.Status.ToString().ToLowerInvariant()</span>
+			<span class="pill">@c.Posts.Count @(c.Posts.Count == 1 ? "post" : "posts")</span>
+			<span class="pill">by @c.CreatedBy</span>
+		</p>
+		@if (!string.IsNullOrWhiteSpace(c.Brief))
+		{
+			<p class="brief">@c.Brief</p>
+		}
+		<p class="quiet small">@(c.Status == CampaignStatus.Held ? "Held: nothing goes out until it resumes; posts whose time passed go out as soon as it does." : "Hold stops everything that has not gone out yet.")</p>
+	</div>
+</header>
+@if (c.NeedsApproval)
+{
+	<div class="banner action"><p>Changed since it was approved@(c.Approval is { } a ? $" by {a.By}" : ""): nothing more goes out until it is approved again. What already went out stays.</p></div>
+}
+else if (c.Approval is { NotBefore: { } notBefore } && notBefore > Model.Clock.Now)
+{
+	<div class="banner action"><p>Approved by @c.Approval.By. Nothing goes out before @Model.Clock.Full(notBefore): hold it before then to stop it.</p></div>
+}
+@if (Model.Problems.Count > 0)
+{
+	<div class="banner problem"><ul>@foreach (var p in Model.Problems) { <li>@p</li> }</ul></div>
+}
+
+<form method="post" class="inline repeat" action="@Forms.Handler("/Campaigns/Detail", "Repeat", ("slug", c.Slug))">
+	<label class="check">Post it again, written fresh,
+		<select name="months">
+			@foreach (var (months, label) in new[] { (0, "never"), (3, "3 months after the last post"), (6, "6 months after"), (12, "a year after") })
+			{
+				<option value="@months" selected="@(months == c.RepeatMonths)">@label</option>
+			}
+		</select>
+	</label>
+	<button>Save</button>
+	@if (c.LastRepeat is { } last)
+	{
+		<span class="quiet small">Last proposed again @Model.Clock.Full(last).</span>
+	}
+@Forms.Token(HttpContext!)</form>
+
+@await RenderPartialAsync(Braggarr.Web.Ui.Shared._PostingAs.Create(new(c, null, null)))
+@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Judgement.Create(new(c, Model.Judge, Model.Clock)))
+@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Points.Create(c))
+@foreach (var post in c.Posts)
+{
+	<section class="post">
+		<h2>@post.Id <span class="quiet">· @Model.Clock.Full(post.At)</span></h2>
+		@await RenderPartialAsync(Braggarr.Web.Ui.Shared._PostAbout.Create(new(c, post)))
+		<div class="variants">
+			@foreach (var network in post.NetworksIn(c))
+			{
+				var v = post.For(network);
+				var d = Model.Schedule.Find(new DeliveryKey(c.Slug, post.Id, network));
+				<article class="variant">
+					<header>
+						<strong>@NetworkIcons.Named(network)</strong>
+						<span class="badge @(d?.State.ToString().ToLowerInvariant() ?? "pending")">@Partials.State(d?.State ?? DeliveryState.Pending)</span>
+					</header>
+					@if (v?.Article is not null)
+					{
+						@:@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Article.Create(new(c.Slug, v)))
+					}
+					else
+					{
+					<p class="text">@v?.Text</p>
+					}
+					@foreach (var m in v?.Media ?? [])
+					{
+						@:@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Media.Create(new(c.Slug, m)))
+					}
+					@if (d?.Receipt is { } receipt) { <p><a href="@receipt.Url">See it on @network</a></p> }
+					@if (d?.Error is { } error) { <p class="quiet small">@error</p> }
+					@if (d is { State: DeliveryState.ManualDue, Issue: { } issue } && v is not null)
+					{
+						<div class="manual">
+							@foreach (var (label, url) in Braggarr.Adapters.GitHub.GitHubManualPosts.SubmitLinks(c, v))
+							{
+								<a class="button primary" href="@url" rel="noopener" target="_blank">@label</a>
+							}
+							<form method="post" class="inline">
+								<input type="hidden" name="post" value="@post.Id">
+								<input type="hidden" name="network" value="@network">
+								<button formaction="@Forms.Handler("/Campaigns/Detail", "Posted", ("slug", c.Slug))">I posted it</button>
+							@Forms.Token(HttpContext!)</form>
+							<p class="quiet small">Issue #@issue on the posts repo has the same links. Stay around for the first hour to answer comments.</p>
+						</div>
+					}
+					@if (d is { State: DeliveryState.Unknown })
+					{
+						<form method="post" class="resolve">
+							<p class="small">Braggarr lost the answer while posting this. Look on @network, then tell it what you found.</p>
+							<input type="hidden" name="post" value="@post.Id">
+							<input type="hidden" name="network" value="@network">
+							<label>Link to the post <input type="url" name="url" placeholder="https://…"></label>
+							<button formaction="@Forms.Handler("/Campaigns/Detail", "There", ("slug", c.Slug))">It is there</button>
+							<button formaction="@Forms.Handler("/Campaigns/Detail", "Missing", ("slug", c.Slug))">It is not there: post it again</button>
+						@Forms.Token(HttpContext!)</form>
+					}
+				</article>
+			}
+		</div>
+		@await RenderPartialAsync(Braggarr.Web.Ui.Shared._PostEdit.Create(Model.Editor(c, post)))
+	</section>
+}

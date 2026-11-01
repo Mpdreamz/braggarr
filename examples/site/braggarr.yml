@@ -1,0 +1,13 @@
+# An example site: what `braggarr blog init` starts, with a little more. CI builds it with the action.
+title: Example blog
+description: Notes on building things in the open.
+url: https://example.com/
+author:
+  name: Sam Example
+  bio: Builds small tools and writes about them.
+permalink: /posts/{slug}/
+nav:
+  - title: About
+    page: about
+  - title: Archive
+    href: /archive/

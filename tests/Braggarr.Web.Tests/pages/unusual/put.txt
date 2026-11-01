@@ -1,0 +1,9 @@
+PUT /Calendar
+500 InternalServerError
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self'; form-action 'self' https://github.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'
+Content-Type: text/plain; charset=utf-8
+Referrer-Policy: same-origin
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+
+System.ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')

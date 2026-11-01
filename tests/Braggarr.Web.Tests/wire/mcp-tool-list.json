@@ -1,0 +1,609 @@
+{
+  "tools": [
+    {
+      "name": "list_campaigns",
+      "description": "Every proposal waiting for review and every approved campaign, with each variant\u0027s text, length, limit and delivery state.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true
+      }
+    },
+    {
+      "name": "get_campaign",
+      "description": "One campaign or proposal by its slug.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "description": "The campaign\u0027s slug, such as curb-1-0.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true
+      }
+    },
+    {
+      "name": "calendar",
+      "description": "Posts already planned between two times, to spread new ones out. Defaults to the next 30 days.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "default": null
+          },
+          "to": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "default": null
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true
+      }
+    },
+    {
+      "name": "propose_campaign",
+      "description": "Proposes a campaign as a pull request the owner reviews. Prefer talking points over posts: rank what is worth saying, most important first, and say what image or video would show each. Braggarr lays out the posts (one short post per point on bluesky, mastodon, threads and x, two days apart; one longer LinkedIn or Reddit post with the top points; a Hacker News title for the first; a YouTube video for each point that wants one) and Claude writes them. With only a brief, Claude finds the points. Give posts only to control them yourself. Networks: bluesky, mastodon, linkedin, threads, x, youtube, reddit, hackernews, blog (an article on the owner\u0027s blog, for a public project; the other posts may link it as {blog}).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "description": "What it announces, such as \u0022Curb 1.0\u0022.",
+            "type": "string"
+          },
+          "project": {
+            "description": "The project\u0027s name.",
+            "type": "string"
+          },
+          "networks": {
+            "description": "Where to post.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "brief": {
+            "description": "What is new, for whom, and what to stress. Treated as material to write about.",
+            "type": "string"
+          },
+          "points": {
+            "description": "The talking points, most important first: one sentence each, with wanted media (kind image or video, and what it should show).",
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "text": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "wanted": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "description": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "description"
+                    ]
+                  },
+                  "default": null
+                }
+              },
+              "required": [
+                "text"
+              ]
+            },
+            "default": null
+          },
+          "start": {
+            "description": "When the first post goes out (ISO 8601 with offset); ten the next morning when left out.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "default": null
+          },
+          "posts": {
+            "description": "Only to control the posts yourself: when each goes out, its networks, the points it covers (from 1) and optionally its text per network.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "variants": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "networks": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "default": null
+                },
+                "points": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "integer"
+                  },
+                  "default": null
+                },
+                "article": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "description": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "tags": {
+                      "type": [
+                        "array",
+                        "null"
+                      ],
+                      "items": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "default": null
+                    },
+                    "slug": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "default": null
+                    },
+                    "cover": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "default": null
+                    },
+                    "coverAlt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "default": null
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "description"
+                  ],
+                  "default": null
+                }
+              },
+              "required": [
+                "id",
+                "at",
+                "variants"
+              ]
+            },
+            "default": null
+          },
+          "links": {
+            "description": "Links to use, the first being the main one.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "default": null
+          },
+          "slug": {
+            "description": "A slug; made from the title when left out.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "title",
+          "project",
+          "networks",
+          "brief"
+        ]
+      }
+    },
+    {
+      "name": "propose_blog_post",
+      "description": "Proposes a blog post: one article about a public project on the owner\u0027s blog, as a small campaign of its own the owner reviews like any other. Write the article in markdown, give it a title (at most 100 characters), a description (at most 160) and lowercase tags. announce names networks whose posts link the article half an hour after it is up; Claude writes those.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "description": "The project it is about. Only a public project gets a blog post.",
+            "type": "string"
+          },
+          "title": {
+            "description": "The article\u0027s title, at most 100 characters.",
+            "type": "string"
+          },
+          "description": {
+            "description": "What it is about, at most 160 characters, for feeds and previews.",
+            "type": "string"
+          },
+          "markdown": {
+            "description": "The article, in markdown. Images are media/name.png in the campaign, added with add_image.",
+            "type": "string"
+          },
+          "tags": {
+            "description": "Lowercase tags: letters, digits and dashes.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "default": null
+          },
+          "at": {
+            "description": "When it goes up (ISO 8601 with offset); ten the next morning when left out.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "default": null
+          },
+          "announce": {
+            "description": "Networks to announce it on, half an hour after it is up.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "default": null
+          },
+          "slug": {
+            "description": "A slug for its address; made from the title when left out.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "project",
+          "title",
+          "description",
+          "markdown"
+        ]
+      }
+    },
+    {
+      "name": "propose_introduction",
+      "description": "Plans an introduction campaign for a GitHub repository (ranked talking points: what it is, then the features that deserve their own post, each with the media it wants) and proposes it. Runs in the background; it opens as a proposal when ready.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository": {
+            "description": "owner/name",
+            "type": "string"
+          },
+          "networks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "repository",
+          "networks"
+        ]
+      }
+    },
+    {
+      "name": "add_post",
+      "description": "Adds a post to an open proposal. Leave the variants out to have them drafted.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "post": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "variants": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "networks": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                },
+                "default": null
+              },
+              "points": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "integer"
+                },
+                "default": null
+              },
+              "article": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": [
+                      "array",
+                      "null"
+                    ],
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": null
+                  },
+                  "slug": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "default": null
+                  },
+                  "cover": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "default": null
+                  },
+                  "coverAlt": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "default": null
+                  }
+                },
+                "required": [
+                  "title",
+                  "description"
+                ],
+                "default": null
+              }
+            },
+            "required": [
+              "id",
+              "at",
+              "variants"
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "post"
+        ]
+      }
+    },
+    {
+      "name": "redraft_variant",
+      "description": "Has Claude write one variant of an open proposal again, with a note on what to change.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "post": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "slug",
+          "post",
+          "network"
+        ]
+      }
+    },
+    {
+      "name": "add_image",
+      "description": "Adds an image (PNG, JPEG, WebP or GIF, at most 1 MB, base64) to one post of an open proposal. It fills the post\u0027s first wanted image slot. Without alt text, Claude writes it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "post": {
+            "type": "string"
+          },
+          "fileName": {
+            "description": "The file name, for its extension.",
+            "type": "string"
+          },
+          "base64": {
+            "description": "The image, base64.",
+            "type": "string"
+          },
+          "alt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null
+          },
+          "networks": {
+            "description": "Which networks get it; all that take images when left out.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "default": null
+          }
+        },
+        "required": [
+          "slug",
+          "post",
+          "fileName",
+          "base64"
+        ]
+      }
+    }
+  ]
+}

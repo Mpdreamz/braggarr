@@ -1,0 +1,41 @@
+<campaign>
+{
+  "title": "Curb 1.0",
+  "project": "curb",
+  "links": [
+    "https://github.com/nullean/curb"
+  ],
+  "talking_points": [
+    {
+      "number": 1,
+      "text": "Keeps diffs small"
+    }
+  ],
+  "posts": [
+    {
+      "id": "01-launch",
+      "at": "Mon 2 Nov 2026 09:00 \u002B01:00",
+      "variants": [
+        {
+          "network": "bluesky",
+          "text": "Curb 1.0 is out.",
+          "media": [
+            {
+              "Path": "media/card.png",
+              "description": "A diff with one changed line"
+            }
+          ]
+        },
+        {
+          "network": "reddit",
+          "text": "I made a C# formatter\n\nIt keeps diffs small.",
+          "media": []
+        }
+      ]
+    }
+  ]
+}
+</campaign>
+
+Give exactly these findings, one each:
+[{"criterion":"Honest","post":"01-launch","network":"bluesky"},{"criterion":"Honest","post":"01-launch","network":"reddit"}]

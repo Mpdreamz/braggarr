@@ -1,0 +1,17 @@
+T:System.IO.File;Disk access goes through the IFileSystem from ConfigFileSystem.Create, scoped to /config
+T:System.IO.Directory;Disk access goes through the IFileSystem from ConfigFileSystem.Create, scoped to /config
+T:System.IO.FileInfo;Disk access goes through the IFileSystem from ConfigFileSystem.Create, scoped to /config
+T:System.IO.DirectoryInfo;Disk access goes through the IFileSystem from ConfigFileSystem.Create, scoped to /config
+T:System.IO.FileStream;Disk access goes through the IFileSystem from ConfigFileSystem.Create, scoped to /config
+P:System.DateTime.Now;Read the clock from TimeProvider
+P:System.DateTime.UtcNow;Read the clock from TimeProvider
+P:System.DateTime.Today;Read the clock from TimeProvider
+P:System.DateTimeOffset.Now;Read the clock from TimeProvider
+P:System.DateTimeOffset.UtcNow;Read the clock from TimeProvider
+M:System.Threading.Tasks.Task.Delay(System.Int32);Wait with Task.Delay(delay, time, ct), on the app's TimeProvider
+M:System.Threading.Tasks.Task.Delay(System.Int32,System.Threading.CancellationToken);Wait with Task.Delay(delay, time, ct), on the app's TimeProvider
+M:System.Threading.Tasks.Task.Delay(System.TimeSpan);Wait with Task.Delay(delay, time, ct), on the app's TimeProvider
+M:System.Threading.Tasks.Task.Delay(System.TimeSpan,System.Threading.CancellationToken);Wait with Task.Delay(delay, time, ct), on the app's TimeProvider
+M:System.Threading.Thread.Sleep(System.Int32);Wait on the app's TimeProvider
+M:System.Threading.Thread.Sleep(System.TimeSpan);Wait on the app's TimeProvider
+M:System.Threading.PeriodicTimer.#ctor(System.TimeSpan);Pass the app's TimeProvider to the timer

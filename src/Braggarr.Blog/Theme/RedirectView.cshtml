@@ -1,0 +1,14 @@
+@inherits RazorSlice<RedirectModel>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>@Model.Title</title>
+	<link rel="canonical" href="@Model.To">
+	<meta name="robots" content="noindex">
+	<meta http-equiv="refresh" content="0; url=@Model.To">
+</head>
+<body>
+	<p>This has moved to <a href="@Model.To">@Model.To</a>.</p>
+</body>
+</html>

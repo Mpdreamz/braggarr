@@ -1,0 +1,37 @@
+@inherits RazorSlice<Braggarr.Web.Ui.PostingAsModel>
+@{
+	var (c, choices, number) = Model;
+	var networks = c.Networks.Where(n => !n.IsManual()).ToList();
+}
+@if (networks.Count > 0)
+{
+	@if (number is { } n && choices is not null)
+	{
+		<form method="post" class="posting-as" action="@Forms.Handler("/Campaigns/Proposal", "Accounts", ("number", n.ToString(global::System.Globalization.CultureInfo.InvariantCulture)))">
+			<span class="quiet small">Posts as</span>
+			@foreach (var network in networks)
+			{
+				var options = choices(network);
+				<label class="net-name">@NetworkIcons.Icon(network)
+					<select name="account[@network]" aria-label="@NetworkIcons.Name(network) account">
+						@if (options.Count == 0) { <option value="">not connected</option> }
+						@foreach (var a in options)
+						{
+							<option value="@a" selected="@(a == c.AccountFor(network))">@a</option>
+						}
+					</select>
+				</label>
+			}
+			<button class="link">Change</button>
+		@Forms.Token(HttpContext!)</form>
+	}
+	else
+	{
+		<p class="posting-as"><span class="quiet small">Posts as</span>
+			@foreach (var network in networks)
+			{
+				<span class="net-name">@NetworkIcons.Icon(network) @(c.AccountFor(network) ?? "the default")</span>
+			}
+		</p>
+	}
+}

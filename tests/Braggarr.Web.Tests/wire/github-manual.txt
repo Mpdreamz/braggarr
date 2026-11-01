@@ -1,0 +1,6 @@
+POST /repos/me/posts/issues
+{"title":"Post to Reddit: I made a C# formatter","body":"It is time to post **Curb 1.0** to Reddit.\n\n- [Submit to Reddit](https://www.reddit.com/submit?url=https%3A%2F%2Fgithub.com%2Fnullean%2Fcurb\u0026title=I%20made%20a%20C%23%20formatter)\n\nThe reviewed text:\n\n\u0060\u0060\u0060\nI made a C# formatter\n\nIt keeps diffs small.\n\u0060\u0060\u0060\n\nStay around for the first hour to answer comments. Close this issue once it is posted.","labels":["braggarr","reddit"]}
+POST /repos/me/posts/issues/9/comments
+{"body":"Posted, said the owner in Braggarr."}
+PATCH /repos/me/posts/issues/9
+{"state":"closed","state_reason":"completed"}

@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <!-- The server: pages for the owner (RazorSlices behind minimal APIs, in Ui/), /api/v1 for agents, and the scheduler's loop.
+       Thin on purpose: every decision is made in the services and the domain. A library: the braggarr binary runs it
+       (braggarr serve), with its stylesheet and script embedded, so the one AOT binary carries everything. -->
+  <PropertyGroup>
+    <RootNamespace>Braggarr.Web</RootNamespace>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <EnableDefaultRazorSlices>false</EnableDefaultRazorSlices>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <!-- Checked for trimming and AOT on every build, and the minimal APIs bound by generated code, as the binary needs. -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <!-- The implicit usings of Microsoft.NET.Sdk.Web, which this project was until it became a library. -->
+  <ItemGroup>
+    <Using Include="System.Net.Http.Json" />
+    <Using Include="Microsoft.AspNetCore.Builder" />
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <Using Include="Microsoft.AspNetCore.Routing" />
+    <Using Include="Microsoft.Extensions.Configuration" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
+    <Using Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Braggarr.Adapters/Braggarr.Adapters.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nullean.Entities.AspNetCore" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
+    <PackageReference Include="System.IO.Hashing" />
+    <PackageReference Include="RazorSlices" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RazorSlice Include="Ui/**/*.cshtml" Exclude="Ui/_ViewImports.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Braggarr.Web.Tests" />
+  </ItemGroup>
+
+</Project>

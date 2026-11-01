@@ -1,0 +1,13 @@
+@inherits RazorSlice<Braggarr.Web.Ui.ArticleModel>
+@{
+	var a = Model.Variant.Article!;
+}
+<div class="article">
+	<p class="article-title"><strong>@a.Title</strong></p>
+	<p class="quiet small">@a.Description@(a.Tags.Count > 0 ? " · " + string.Join(", ", a.Tags) : "")</p>
+	@if (a.Cover is { } cover)
+	{
+		<figure class="image"><img src="/campaigns/@Model.Slug/@cover.Path" alt="@cover.Alt" loading="lazy"><figcaption>@cover.Alt</figcaption></figure>
+	}
+	<div class="article-body">@Model.Body</div>
+</div>

@@ -1,0 +1,79 @@
+@inherits RazorLayoutSlice<LayoutModel>
+<!DOCTYPE html>
+<html lang="@Model.Config.Language">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>@Model.TitleOfPage</title>
+	@if (Model.Description is { Length: > 0 } description)
+	{
+		<meta name="description" content="@description">
+	}
+	<link rel="canonical" href="@(Model.Canonical ?? Model.Absolute(Model.Path))">
+	<link rel="alternate" type="application/atom+xml" title="@Model.Config.Title" href="@Model.Href("/" + Model.Config.Feed)">
+	<meta property="og:site_name" content="@Model.Config.Title">
+	<meta property="og:title" content="@Model.Title">
+	<meta property="og:type" content="@Model.Kind">
+	<meta property="og:url" content="@Model.Absolute(Model.Path)">
+	@if (Model.Description is { Length: > 0 } ogDescription)
+	{
+		<meta property="og:description" content="@ogDescription">
+	}
+	@if (Model.Image is { } image)
+	{
+		<meta property="og:image" content="@image">
+		@if (Model.ImageAlt is { } alt)
+		{
+			<meta property="og:image:alt" content="@alt">
+		}
+		<meta name="twitter:card" content="summary_large_image">
+	}
+	else
+	{
+		<meta name="twitter:card" content="summary">
+	}
+	<link rel="stylesheet" href="@Model.Href(Model.Stylesheet)">
+	@if (Model.Config.Accent is { } accent)
+	{
+		<style>:root { --accent: @accent; }</style>
+	}
+	@if (Model.HasCustomCss)
+	{
+		<link rel="stylesheet" href="@Model.Href("/custom.css")">
+	}
+	@if (Model.JsonLd is { } jsonLd)
+	{
+		<script type="application/ld+json">@(new HtmlString(jsonLd))</script>
+	}
+	@if (Model.Site.Head is { } head)
+	{
+		@(new HtmlString(head))
+	}
+</head>
+<body>
+	<header class="site-header">
+		<a class="site-title" href="@Model.Href("/")">@Model.Config.Title</a>
+		@if (Model.Config.Nav.Count > 0)
+		{
+			<nav aria-label="Site">
+				<ul>
+					@foreach (var link in Model.Config.Nav)
+					{
+						<li><a href="@(link.Href.StartsWith('/') ? Model.Href(link.Href) : link.Href)">@link.Title</a></li>
+					}
+				</ul>
+			</nav>
+		}
+	</header>
+	<main>
+		@await RenderBodyAsync()
+	</main>
+	<footer class="site-footer">
+		<p><a href="@Model.Href("/" + Model.Config.Feed)">Feed</a> · <a href="@Model.Href("/archive/")">Archive</a></p>
+		@if (Model.Site.Footer is { } footer)
+		{
+			@(new HtmlString(footer))
+		}
+	</footer>
+</body>
+</html>

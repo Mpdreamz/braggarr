@@ -1,0 +1,49 @@
+@inherits RazorSlice<Braggarr.Web.Ui.JudgementModel>
+@{
+	var (c, judge, clock) = Model;
+	var j = c.Judgement;
+	var current = judge.IsCurrent(c);
+}
+@if (judge.Problem is { } problem)
+{
+	<div class="banner problem"><p>The judge's criteria cannot be read, so nothing is approved until they are fixed: @problem</p></div>
+}
+else if (judge.On || j is not null)
+{
+	<section class="judgement">
+		<h2>The judge
+			<span class="quiet">·
+				@if (j is null) { <text>has not read this yet; it does within a minute</text> }
+				else
+				{
+					<text>@j.Model, @clock.Full(j.At)</text>
+					@if (!judge.On) { <text>, no longer judging</text> }
+					else if (!current) { <text>, on @(j.Digest != c.Digest ? "an earlier version" : "earlier criteria"): judging again</text> }
+				}
+			</span>
+		</h2>
+		@if (j is not null)
+		{
+			<ul class="findings @(current ? "" : "outdated")">
+				@foreach (var criterion in j.Findings.GroupBy(f => f.Criterion))
+				{
+					var failed = criterion.Where(f => !f.Passed).ToList();
+					var kind = failed.Count == 0 ? "pass" : failed.Any(f => f.Blocks) ? "block" : "warn";
+					<li class="finding">
+						<span class="badge @kind">@(kind switch { "pass" => "passes", "block" => "blocks", _ => "warns" })</span>
+						<strong>@criterion.Key</strong>
+						@if (failed.Count > 0)
+						{
+							<ul>
+								@foreach (var f in failed)
+								{
+									<li><span class="quiet">@f.Post on @NetworkIcons.Named(f.Network):</span> @f.Reason</li>
+								}
+							</ul>
+						}
+					</li>
+				}
+			</ul>
+		}
+	</section>
+}

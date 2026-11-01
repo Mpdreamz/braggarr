@@ -1,0 +1,288 @@
+@inherits RazorSlice<Braggarr.Web.Ui.Settings.IndexModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Settings", Toolbar: true);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		if (name == "Toolbar")
+		{
+<text>
+	<span class="tool-label">@Model.SectionTitle</span>
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@{
+	var s = Model.Current;
+}
+@if (Model.Message is { } message) { <p class="banner action">@message</p> }
+@if (Model.Problem is { } problem) { <p class="banner problem">@problem</p> }
+@if (Model.NewKey is { } key)
+{
+	<div class="newkey">
+		<code id="new-key">@key</code>
+		<button type="button" data-copy="#new-key">Copy</button>
+	</div>
+}
+@if (Model.Section == "networks")
+{
+	<section>
+	<div class="grid">
+		<div class="panel">
+			<h3>@NetworkIcons.Named(Network.Bluesky)</h3>
+			@await RenderPartialAsync(Braggarr.Web.Ui.Settings._Accounts.Create(Model.AccountsOn(Network.Bluesky)))
+			<form method="post" class="connect" action="@Forms.Handler("/Settings", "Bluesky", ("section", Model.Section))">
+			<label>Handle <input name="handle" placeholder="you.bsky.social" required></label>
+			<label>App password <input name="appPassword" type="password" autocomplete="off" required></label>
+			<p class="quiet small">Make one under Settings → Privacy and security → App passwords. Never your account password.</p>
+			<label>Server <input name="service" value="https://bsky.social"></label>
+			<button class="primary">Connect and test</button>
+		@Forms.Token(HttpContext!)</form>
+		</div>
+		<div class="panel">
+			<h3>@NetworkIcons.Named(Network.Mastodon)</h3>
+			@await RenderPartialAsync(Braggarr.Web.Ui.Settings._Accounts.Create(Model.AccountsOn(Network.Mastodon)))
+			<form method="post" class="connect" action="@Forms.Handler("/Settings", "Mastodon", ("section", Model.Section))">
+			<label>Server <input name="instance" placeholder="hachyderm.io" required></label>
+			<label>Access token <input name="accessToken" type="password" autocomplete="off" required></label>
+			<p class="quiet small">Preferences → Development → New application, with the <code>write:statuses</code> and <code>write:media</code> scopes to post, and <code>read:accounts</code> and <code>write:accounts</code> to keep the profile under Profiles.</p>
+			<button class="primary">Connect and test</button>
+		@Forms.Token(HttpContext!)</form>
+		</div>
+		<div class="panel">
+			<h3>@NetworkIcons.Named(Network.LinkedIn)</h3>
+			@await RenderPartialAsync(Braggarr.Web.Ui.Settings._Accounts.Create(Model.AccountsOn(Network.LinkedIn)))
+			<form method="post" class="connect" action="@Forms.Handler("/Settings", "LinkedIn", ("section", Model.Section))">
+			<label>Access token <input name="accessToken" type="password" autocomplete="off" required></label>
+			<label>Days it is valid <input name="days" type="number" min="1" max="365" value="60"></label>
+			<p class="quiet small">Make an app on LinkedIn's developer portal with the "Sign In with LinkedIn using OpenID Connect" and "Share on LinkedIn" products, then use its OAuth token generator with the <code>openid</code>, <code>profile</code> and <code>w_member_social</code> scopes. Tokens last 60 days; Braggarr warns you a week before.</p>
+			<button class="primary">Connect and test</button>
+		@Forms.Token(HttpContext!)</form>
+		</div>
+		<div class="panel">
+			<h3>@NetworkIcons.Named(Network.Threads)</h3>
+			@await RenderPartialAsync(Braggarr.Web.Ui.Settings._Accounts.Create(Model.AccountsOn(Network.Threads)))
+			<form method="post" class="connect" action="@Forms.Handler("/Settings", "Threads", ("section", Model.Section))">
+			<label>Long-lived access token <input name="accessToken" type="password" autocomplete="off" required></label>
+			<p class="quiet small">In your Meta app with the Threads use case and <code>threads_basic</code> and <code>threads_content_publish</code>, add yourself as a Threads tester and generate a long-lived user token. Braggarr refreshes it. Threads takes text only from Braggarr: it fetches images from public URLs.</p>
+			<button class="primary">Connect and test</button>
+		@Forms.Token(HttpContext!)</form>
+		</div>
+		<div class="panel">
+			<h3>@NetworkIcons.Named(Network.YouTube)</h3>
+			@await RenderPartialAsync(Braggarr.Web.Ui.Settings._Accounts.Create(Model.AccountsOn(Network.YouTube)))
+			<form method="post" class="connect" action="@Forms.Handler("/Settings", "YouTubeClient", ("section", Model.Section))">
+			<label>OAuth client id <input name="clientId" autocomplete="off" value="@Model.YouTubeClient?.ClientId" required></label>
+			<label>OAuth client secret <input name="clientSecret" type="password" autocomplete="off" required></label>
+			<p class="quiet small">
+				In Google Cloud: enable the YouTube Data API v3, set the OAuth consent screen to <strong>In production</strong> (in Testing, Google ends
+				the access after 7 days), and make an OAuth client of type Web application with this redirect URI:
+				<code>@Model.YouTubeRedirect</code>
+				@if (!Model.YouTubeRedirect.StartsWith("https://", StringComparison.Ordinal)) { <br><strong>Google only accepts an https address: open Settings through the public hostname to connect.</strong> }
+			</p>
+			<button class="primary">Save client</button>
+			@if (Model.YouTubeClient is not null) { <a class="button" href="/settings/youtube/connect">@(Model.AccountsOn(Network.YouTube).Count == 0 ? "Connect a channel" : "Connect another channel")</a> }
+		@Forms.Token(HttpContext!)</form>
+		</div>
+		<div class="panel">
+			<h3>@NetworkIcons.Named(Network.X)</h3>
+			@await RenderPartialAsync(Braggarr.Web.Ui.Settings._Accounts.Create(Model.AccountsOn(Network.X)))
+			<form method="post" class="connect" action="@Forms.Handler("/Settings", "X", ("section", Model.Section))">
+			<label>API key <input name="consumerKey" type="password" autocomplete="off" required></label>
+			<label>API key secret <input name="consumerSecret" type="password" autocomplete="off" required></label>
+			<label>Access token <input name="accessToken" type="password" autocomplete="off" required></label>
+			<label>Access token secret <input name="accessTokenSecret" type="password" autocomplete="off" required></label>
+			<p class="quiet small">From your app in X's developer portal: set its user authentication to read and write first, then generate the access token and secret for your own account. X bills posts per use; one with a link costs more than one without.</p>
+			<button class="primary">Connect and test</button>
+		@Forms.Token(HttpContext!)</form>
+		</div>
+		<div class="panel">
+			<h3>@NetworkIcons.Named(Network.Blog)</h3>
+			@await RenderPartialAsync(Braggarr.Web.Ui.Settings._Accounts.Create(Model.AccountsOn(Network.Blog)))
+			<form method="post" class="connect" action="@Forms.Handler("/Settings", "Blog", ("section", Model.Section))">
+			<label>Site repository <input name="repository" placeholder="owner/blog" required></label>
+			<label>Branch <input name="branch" value="main" required></label>
+			<label>Posts folder <input name="folder" value="posts" required></label>
+			<label>Served from <input name="baseUrl" type="url" placeholder="the url in its braggarr.yml"></label>
+			<p class="quiet small">A site built by braggarr (<code>braggarr blog init</code>), in a repository Braggarr's GitHub App is installed on. Braggarr commits each blog post there, which builds the site, and posts what links it once its address answers. Only public projects get a blog post.</p>
+			<button class="primary">Connect and test</button>
+		@Forms.Token(HttpContext!)</form>
+		</div>
+	</div>
+	@if (Model.PostingNetworks.Count > 0)
+	{
+		<form method="post" class="panel who-posts" action="@Forms.Handler("/Settings", "Defaults", ("section", Model.Section))">
+			<h3>Who posts</h3>
+			<p class="quiet small">The account a campaign posts as, chosen when it is proposed: its project's, else its GitHub org's, else the one for everything. You can change it on the proposal before you approve.</p>
+			<table class="table">
+				<thead><tr><th>For</th>@foreach (var n in Model.PostingNetworks) { <th>@NetworkIcons.Named(n)</th> }</tr></thead>
+				<tbody>
+					@foreach (var (label, org, project) in Model.Scopes)
+					{
+						<tr>
+							<td>@label</td>
+							@foreach (var n in Model.PostingNetworks)
+							{
+								var chosen = Model.DefaultFor(n, org, project);
+								<td>
+									<select name="@Braggarr.Web.Ui.Settings.IndexModel.DefaultField(n, org, project)" aria-label="@label on @NetworkIcons.Name(n)">
+										<option value="" selected="@(chosen is null)">@(org is null && project is null ? "the first connected" : "as above")</option>
+										@foreach (var a in Model.AccountsOn(n))
+										{
+											<option value="@a.Name" selected="@(a.Name == chosen)">@a.Name</option>
+										}
+									</select>
+								</td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+			<button class="primary">Save</button>
+		@Forms.Token(HttpContext!)</form>
+	}
+	<p class="quiet small">Reddit and Hacker News stay manual: Braggarr opens an issue with submit links.</p>
+	</section>
+}
+else if (Model.Section == "claude")
+{
+	<section>
+	<form method="post" class="panel narrow" action="@Forms.Handler("/Settings", "Claude", ("section", Model.Section))">
+		<p class="quiet small">One key for everything Claude does in Braggarr: writing the variants an agent or you leave out, talking points, alt text and introductions, and judging proposals against your criteria. Writing follows <code>voice.md</code> in the posts repo. Everything Claude writes is still a proposal you review.</p>
+		<label>API key @if (Model.HasClaudeKey) { <span class="badge published">set</span> }
+			<input name="apiKey" type="password" autocomplete="off" placeholder="@(Model.HasClaudeKey ? "leave empty to keep the current key" : "sk-ant-…")">
+		</label>
+		<h3>Writing</h3>
+		<label>Model
+			<select name="model">
+				@foreach (var m in Braggarr.Adapters.Claude.ClaudeOptions.Models)
+				{
+					<option value="@m" selected="@(m == s.ClaudeModel)">@m</option>
+				}
+			</select>
+		</label>
+		<label>Effort
+			<select name="effort">
+				@foreach (var e in new[] { "low", "medium", "high" })
+				{
+					<option value="@e" selected="@(e == s.ClaudeEffort)">@e</option>
+				}
+			</select>
+		</label>
+		<h3>Judging</h3>
+		<label>Model
+			<select name="judgeModel">
+				<option value="" selected="@(s.JudgeModel is null)">the writing model</option>
+				@foreach (var m in Braggarr.Adapters.Claude.ClaudeOptions.Models)
+				{
+					<option value="@m" selected="@(m == s.JudgeModel)">@m</option>
+				}
+			</select>
+		</label>
+		<label>Effort
+			<select name="judgeEffort">
+				<option value="" selected="@(s.JudgeEffort is null)">the writing effort</option>
+				@foreach (var e in new[] { "low", "medium", "high" })
+				{
+					<option value="@e" selected="@(e == s.JudgeEffort)">@e</option>
+				}
+			</select>
+		</label>
+		<p class="quiet small">What the judge checks, and whether it may approve, is under <a href="/Settings?section=judge">Judge</a>.</p>
+		<button class="primary">Save</button>
+	@Forms.Token(HttpContext!)</form>
+	@if (Model.HasClaudeKey)
+	{
+		<form method="post" class="inline" action="@Forms.Handler("/Settings", "ForgetClaude", ("section", Model.Section))"><button class="link danger">Remove the key</button>@Forms.Token(HttpContext!)</form>
+	}
+	<h3>This month</h3>
+	<p class="quiet small">@Model.ThisMonth.Calls @(Model.ThisMonth.Calls == 1 ? "call" : "calls"), about $@Model.ThisMonth.Dollars.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture). Set a spend limit on the Anthropic workspace that holds this key.</p>
+	@if (Model.ThisMonthByUse.Count > 0)
+	{
+		<table class="usage">
+			<tbody>
+				@foreach (var (use, calls, dollars) in Model.ThisMonthByUse)
+				{
+					<tr><td>@use</td><td class="quiet small">@calls @(calls == 1 ? "call" : "calls")</td><td>$@dollars.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)</td></tr>
+				}
+			</tbody>
+		</table>
+	}
+	</section>
+}
+else if (Model.Section == "judge")
+{
+	var judge = await Model.JudgeAsync();
+	<section>
+	<form method="post" class="panel" action="@Forms.Handler("/Settings", "Judge", ("section", Model.Section))">
+		<p class="quiet small">Before you approve a proposal, Claude judges every post against your criteria: one markdown file each in <code>judges/</code> in the posts repo, read from main only. A criterion that blocks stops approval, yours too; one that warns is shown. Any edit after approval undoes it, and the judge reads it again. Its key, model and effort are under <a href="/Settings?section=claude">Claude</a>.</p>
+		<label class="check"><input type="checkbox" name="autoApprove" value="true" checked="@s.JudgeAutoApprove"> Let the judge approve what passes every criterion, warnings included. You get a notification each time.</label>
+		<label>Nothing the judge approves goes out for <input name="delayHours" type="number" min="0" max="336" value="@s.JudgeDelayHours"> hours, so you can hold it first.</label>
+		<button class="primary">Save</button>
+	@Forms.Token(HttpContext!)</form>
+	<h3>Criteria</h3>
+	@if (judge.Problem is { } broken)
+	{
+		<p class="banner problem">They cannot be read, so nothing is approved until they are fixed: @broken</p>
+	}
+	else if (!Model.HasClaudeKey)
+	{
+		<p class="quiet">No Claude key yet: set one under <a href="/Settings?section=claude">Claude</a>.</p>
+	}
+	else if (judge.Criteria.Count == 0)
+	{
+		<p class="quiet">None yet: add a markdown file to <code>judges/</code> on main, such as <code>judges/honest.md</code>. Front matter is optional: <code>on_failure: warn</code> to warn instead of block, <code>networks: [x, bluesky]</code> to judge only those.</p>
+	}
+	else
+	{
+		<ul class="findings">
+			@foreach (var c in judge.Criteria)
+			{
+				<li class="finding">
+					<span class="badge @(c.Blocks ? "block" : "warn")">@(c.Blocks ? "blocks" : "warns")</span>
+					<strong>@c.Name</strong>
+					<span class="quiet small">@(c.Networks is null ? "every network" : string.Join(", ", c.Networks))</span>
+					<p class="quiet small">@c.Prompt</p>
+				</li>
+			}
+		</ul>
+	}
+	</section>
+}
+else if (Model.Section == "agents")
+{
+	<section>
+	<p class="quiet">An agent sends its key in the <code>X-Api-Key</code> header to <code>/api/v1</code>. A key can only propose campaigns: you approve them.</p>
+	<ul class="cards">
+		@foreach (var k in s.ApiKeys)
+		{
+			<li class="card">
+				<strong>@k.Name</strong> <span class="quiet small">made @k.Created.ToString("d MMM yyyy", System.Globalization.CultureInfo.InvariantCulture)</span>
+				<form method="post" class="inline" action="@Forms.Handler("/Settings", "RevokeKey", ("section", Model.Section))"><button name="name" value="@k.Name" class="link danger">Revoke</button>@Forms.Token(HttpContext!)</form>
+			</li>
+		}
+	</ul>
+	<form method="post" class="inline" action="@Forms.Handler("/Settings", "CreateKey", ("section", Model.Section))">
+		<input name="name" placeholder="release-bot" required maxlength="40">
+		<button>Make a key</button>
+	@Forms.Token(HttpContext!)</form>
+	</section>
+}
+else
+{
+	<section>
+	<form method="post" class="panel" action="@Forms.Handler("/Settings", "General", ("section", Model.Section))">
+		<label>Posts repo <input value="@s.PostsRepository" disabled></label>
+		<label>Time zone <input name="timeZone" value="@s.TimeZone" required></label>
+		<label>ntfy server <input name="ntfyServer" value="@s.NtfyServer"></label>
+		<label>ntfy topic <input name="ntfyTopic" value="@s.NtfyTopic" placeholder="a long random name"></label>
+		<p class="quiet small">On ntfy.sh anyone who knows the topic can read it: make it long and random. Empty: notices only go to the log.</p>
+		<label>Trusted proxies <input name="trustedProxies" value="@string.Join(", ", s.TrustedProxies)" placeholder="172.19.0.0/16"></label>
+		<button class="primary">Save</button>
+	@Forms.Token(HttpContext!)</form>
+	<form method="post" class="inline" action="@Forms.Handler("/Settings", "Sync", ("section", Model.Section))"><button>Sync the posts repo now</button>@Forms.Token(HttpContext!)</form>
+	<form method="post" class="inline" action="@Forms.Handler("/Settings", "TestNotice", ("section", Model.Section))"><button>Send a test notification</button>@Forms.Token(HttpContext!)</form>
+	</section>
+}

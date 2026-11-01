@@ -1,0 +1,23 @@
+@inherits RazorSlice<LayoutModel>
+<aside class="author" aria-label="About the author">
+	@if (Model.Config.Author.Avatar is { } avatar)
+	{
+		<img class="avatar" src="@Model.FileHref(avatar)" alt="" width="64" height="64">
+	}
+	<div>
+		<p class="author-name">@Model.Config.Author.Name</p>
+		@if (Model.Config.Author.Bio is { } bio)
+		{
+			<p class="author-bio">@bio</p>
+		}
+		@if (Model.Site.Profiles.Count > 0)
+		{
+			<ul class="profiles">
+				@foreach (var profile in Model.Site.Profiles)
+				{
+					<li><a rel="me" href="@profile.Url">@(profile.Name ?? profile.Network)</a></li>
+				}
+			</ul>
+		}
+	</div>
+</aside>

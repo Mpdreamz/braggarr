@@ -1,0 +1,19 @@
+# An example: copy it next to where the config should live, with build pointing at a clone of this repository.
+services:
+  braggarr:
+    build: .
+    image: braggarr:local
+    container_name: braggarr
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+    ports:
+      - "9494:9494"
+    volumes:
+      - ./config:/config
+    # Behind a reverse proxy in Docker: share its network so it can forward to http://braggarr:9494.
+    networks: [default, proxy]
+
+networks:
+  proxy:
+    name: proxy_default
+    external: true

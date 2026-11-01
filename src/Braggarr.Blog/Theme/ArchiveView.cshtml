@@ -1,0 +1,30 @@
+@inherits RazorSlice<ArchiveModel>
+@implements IUsesLayout<Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => Model.Layout;
+}
+<h1>Archive</h1>
+@foreach (var year in Model.Layout.Plan.Archive())
+{
+	<section class="year">
+		<h2>@year.Key</h2>
+		<ul>
+			@foreach (var post in year)
+			{
+				<li><time datetime="@LayoutModel.Iso(post.Date)">@post.Date.ToString("d MMM", System.Globalization.CultureInfo.InvariantCulture)</time> <a href="@Model.PostHref(post)">@post.Title</a></li>
+			}
+		</ul>
+	</section>
+}
+@if (Model.Layout.Plan.Tags.Count > 0)
+{
+	<section class="all-tags">
+		<h2>Tags</h2>
+		<ul class="tags">
+			@foreach (var tag in Model.Layout.Plan.Tags)
+			{
+				<li><a href="@Model.Layout.Href(tag.Path)">#@tag.Tag</a> (@tag.Posts.Count)</li>
+			}
+		</ul>
+	</section>
+}

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The domain: immutable records, pure functions and their rules. No I/O, no clock, no framework.
+       Nullean.Entities is the only dependency, and a test in Braggarr.Domain.Tests keeps it that way. -->
+  <ItemGroup>
+    <PackageReference Include="Nullean.Entities" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Braggarr.Domain.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- braggarr, the one tool: the server (braggarr serve) and the blog builder (braggarr blog …). Published as Native AOT
+       binaries, as a containerless image that the action.yml in the repository root runs, and in the server's image. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>braggarr</AssemblyName>
+    <RootNamespace>Braggarr.Cli</RootNamespace>
+    <PublishAot>true</PublishAot>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <IsPublishable>true</IsPublishable>
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+  </PropertyGroup>
+
+  <!-- The containerless image: the AOT binary on Ubuntu's chiseled runtime-deps, no shell, no package manager; the extra
+       variant, for ICU and time zones, which the server uses. It runs as the GitHub runner's user (1001), so the action can
+       write into the checked-out workspace. The registry and tags come from the workflow. -->
+  <PropertyGroup>
+    <ContainerRepository>mpdreamz/braggarr-cli</ContainerRepository>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime-deps:10.0-noble-chiseled-extra</ContainerBaseImage>
+    <ContainerUser>1001:1001</ContainerUser>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ContainerLabel Include="org.opencontainers.image.description" Value="braggarr: builds a blog from markdown" />
+  </ItemGroup>
+
+  <!-- What Microsoft.NET.Sdk.Web sets for an AOT app, which this project is not: the OpenAPI document's model metadata
+       without the parts that need reflection. -->
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="Microsoft.AspNetCore.Mvc.ApiExplorer.IsEnhancedModelMetadataSupported" Value="false" Trim="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Braggarr.Cli.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Braggarr.Blog/Braggarr.Blog.csproj" />
+    <ProjectReference Include="../Braggarr.Web/Braggarr.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nullean.Argh" />
+    <PackageReference Include="Nullean.ScopedFileSystem" />
+  </ItemGroup>
+
+</Project>

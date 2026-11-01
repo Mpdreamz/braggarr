@@ -1,0 +1,22 @@
+POST /Logout
+302 Found
+Cache-Control: no-store, no-cache
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self'; form-action 'self' https://github.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Location: /
+Pragma: no-cache
+Referrer-Policy: same-origin
+Set-Cookie: braggarr=…; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=lax; httponly
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+
+
+
+==== GET /
+302 Found
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self'; form-action 'self' https://github.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'
+Location: http://localhost/login?ReturnUrl=%2F
+Referrer-Policy: same-origin
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+

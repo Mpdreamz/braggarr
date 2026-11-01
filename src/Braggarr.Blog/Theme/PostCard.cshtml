@@ -1,0 +1,6 @@
+@inherits RazorSlice<CardModel>
+<article class="card">
+	<h2><a href="@Model.Href">@Model.Post.Title</a></h2>
+	<p class="meta"><time datetime="@LayoutModel.Iso(Model.Post.Date)">@LayoutModel.Day(Model.Post.Date)</time>@if (Model.Post.Draft) { <span class="draft">draft</span> }</p>
+	<p>@(Model.Post.Description ?? MarkdownRenderer.Excerpt(Model.Post.Markdown))</p>
+</article>

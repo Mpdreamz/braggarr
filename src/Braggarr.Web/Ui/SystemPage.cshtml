@@ -1,0 +1,54 @@
+@inherits RazorSlice<SystemModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("System");
+}
+@{
+	var s = Model.Settings;
+}
+@if (Model.Problem is { } problem) { <p class="banner problem">The scheduler's last run failed: @problem</p> }
+<div class="tiles">
+	<section class="tile">
+		<h3>Scheduler</h3>
+		<dl>
+			<dt>State</dt><dd>@(Model.Started ? "running, every 30 seconds" : "waiting for setup")</dd>
+			<dt>Last sync</dt><dd>@(Model.LastSync is { } at ? Model.Clock.Full(at) : "not yet")</dd>
+			<dt>Campaigns</dt><dd>@Model.Campaigns approved or held</dd>
+			<dt>Deliveries</dt><dd>@Model.Deliveries</dd>
+		</dl>
+	</section>
+	<section class="tile">
+		<h3>Posts repo</h3>
+		<dl>
+			<dt>Repository</dt><dd><a href="https://github.com/@s.PostsRepository">@s.PostsRepository</a></dd>
+			<dt>GitHub App</dt><dd>@s.GitHubApp.Slug</dd>
+			<dt>Owner</dt><dd>@s.Owner?.Login</dd>
+		</dl>
+	</section>
+	<section class="tile">
+		<h3>Networks</h3>
+		@if (Model.Connections.Count == 0) { <p class="quiet">None connected. <a href="/Settings?section=networks">Connect one</a>.</p> }
+		<dl>
+			@foreach (var (network, account, expires) in Model.Connections)
+			{
+				<dt>@network</dt><dd>@account @if (expires is not null) { <span class="quiet small">· @expires</span> }</dd>
+			}
+		</dl>
+	</section>
+	<section class="tile">
+		<h3>Drafting</h3>
+		<dl>
+			<dt>Claude</dt><dd>@(Model.Drafting ? $"{s.ClaudeModel}, {s.ClaudeEffort} effort" : "not set up")</dd>
+			<dt>This month</dt><dd>@Model.ThisMonth.Calls @(Model.ThisMonth.Calls == 1 ? "call" : "calls"), about $@Model.ThisMonth.Dollars.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)</dd>
+		</dl>
+	</section>
+	<section class="tile">
+		<h3>About</h3>
+		<dl>
+			<dt>Version</dt><dd>@SystemModel.Version</dd>
+			<dt>Time zone</dt><dd>@s.TimeZone</dd>
+			<dt>Notifications</dt><dd>@(s.NtfyTopic is null ? "log only" : $"ntfy, {s.NtfyServer}")</dd>
+			<dt>Trusted proxies</dt><dd>@(s.TrustedProxies.Count == 0 ? "none" : string.Join(", ", s.TrustedProxies))</dd>
+		</dl>
+	</section>
+</div>

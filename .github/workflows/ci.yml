@@ -1,0 +1,136 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Private repo: minutes are billed, so Linux jobs only and no matrix. The release workflow builds every platform.
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: ./build.sh test
+      - name: The image builds
+        run: docker build -q -t braggarr:ci .
+      # The AOT server, as the container runs it: it answers, serves its stylesheet, opens setup and passes its health check,
+      # and agents get JSON from the API, OpenAPI and MCP. Tests can fall back on reflection; this binary cannot.
+      - name: The image serves
+        run: |
+          key=brag_ci-smoke-key
+          mkdir -m 777 config
+          printf '{"apiKeys":[{"name":"ci","hash":"%s","created":"2030-01-01T00:00:00+00:00"}]}' "$(printf %s "$key" | sha256sum | cut -d' ' -f1)" > config/config.json
+          chmod 666 config/config.json
+          docker run -d --name braggarr -p 9494:9494 -v "$PWD/config:/config" braggarr:ci
+          for i in $(seq 1 30); do curl -sf http://localhost:9494/healthz && break; sleep 1; done
+          curl -sf http://localhost:9494/css/site.css -o /dev/null
+          token=$(docker logs braggarr 2>&1 | grep -o 'setup/start?token=[A-Za-z0-9_-]*' | head -1)
+          curl -sf -c jar -b jar "http://localhost:9494/$token" -o /dev/null
+          curl -sf -c jar -b jar http://localhost:9494/Setup | grep -q '<h1>Set up Braggarr</h1>'
+          docker exec braggarr /app/braggarr healthcheck
+          api() { curl -s -o /dev/null -w '%{http_code}' -H "X-Api-Key: $key" -H 'Content-Type: application/json' "$@"; }
+          test "$(api -d '{"title":"","project":"x","networks":["myspace"],"brief":""}' http://localhost:9494/api/v1/campaigns)" = 400
+          test "$(api -d '{"repository":"nullean/curb","networks":["bluesky"]}' http://localhost:9494/api/v1/projects/introduce)" = 202
+          test "$(api http://localhost:9494/openapi/v1.json)" = 200
+          curl -sf -H "X-Api-Key: $key" -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' http://localhost:9494/mcp | grep -q propose_campaign
+          docker logs braggarr 2>&1 | (! grep -q Exception)
+      - name: The server's log
+        if: failure()
+        run: docker logs braggarr 2>&1 | tail -100
+
+  cli:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      # Warnings are errors, so a trim or AOT warning fails here.
+      - name: The CLI publishes as Native AOT
+        run: dotnet publish src/Braggarr.Cli -c Release -r linux-x64 -o .artifacts/cli
+      - name: The binary starts and builds a new site
+        run: |
+          .artifacts/cli/braggarr --help
+          site="$(mktemp -d)"
+          .artifacts/cli/braggarr blog init --path "$site"
+          .artifacts/cli/braggarr blog build --path "$site" --strict
+          test -f "$site/.artifacts/site/posts/hello/index.html"
+      - name: The containerless image builds
+        run: dotnet publish src/Braggarr.Cli -c Release -r linux-x64 -t:PublishContainer -p:ContainerImageTags=ci
+      # As the action runs it: the workspace mounted, the inputs as INPUT_* variables, no arguments.
+      - name: The image builds the example site as the action does
+        run: |
+          site="$(mktemp -d)"
+          cp -r examples/site/. "$site"
+          docker run --rm --workdir /github/workspace -v "$site:/github/workspace" \
+            -e GITHUB_ACTIONS=true -e INPUT_STRICT=true -e INPUT_OUTPUT=.artifacts/site \
+            mpdreamz/braggarr-cli:ci
+          test -f "$site/.artifacts/site/posts/welcome/index.html"
+
+  edge:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test, cli]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push the edge image the action runs
+        run: >
+          dotnet publish src/Braggarr.Cli -c Release -r linux-x64 -t:PublishContainer
+          -p:ContainerRegistry=ghcr.io '-p:ContainerImageTags="edge;sha-${{ github.sha }}"'
+
+  action:
+    needs: edge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+      # The image is private while the repository is.
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # The runner starts the action's container without that sign-in, so the image is pulled first, signed in.
+      - run: docker pull ghcr.io/mpdreamz/braggarr-cli:edge
+      - name: The action builds the example site
+        uses: ./
+        with:
+          path: examples/site
+          output: .artifacts/example
+          strict: "true"
+      - run: test -f .artifacts/example/posts/welcome/index.html

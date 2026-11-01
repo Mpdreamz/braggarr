@@ -1,0 +1,17 @@
+@inherits RazorSlice<Braggarr.Web.Ui.PostAboutModel>
+@{
+	var (c, post) = Model;
+}
+@if (post.Angle is not null || post.Points.Count > 0)
+{
+	<p class="post-about quiet small">
+		@if (post.Points.Count > 0)
+		{
+			<span>@(post.Points.Count == 1 ? "Point" : "Points") @string.Join(", ", post.Points.Select(i => i + 1))</span>
+		}
+		@if (post.Angle is not null && !(post.Points.Count == 1 && post.Points[0] < c.Points.Count && c.Points[post.Points[0]].Text == post.Angle))
+		{
+			<span>@post.Angle</span>
+		}
+	</p>
+}

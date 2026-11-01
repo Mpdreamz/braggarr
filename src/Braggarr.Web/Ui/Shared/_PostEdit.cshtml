@@ -1,0 +1,30 @@
+@inherits RazorSlice<Braggarr.Web.PostEdit>
+@{
+	var c = Model.Campaign;
+}
+<details class="edit">
+	<summary>Edit @Model.Post.Id</summary>
+	<form method="post" class="panel" action="@Forms.Handler(Model.Page, "Edit", Model.Route)">
+		<input type="hidden" name="post" value="@Model.Post.Id">
+		<label>When (@Model.Clock.Zone.Id)
+			<input type="datetime-local" name="at" value="@Model.Clock.Local(Model.Post.At).ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture)" required>
+		</label>
+		@foreach (var network in Model.Post.NetworksIn(c))
+		{
+			var v = Model.Post.For(network);
+			@if (network == Network.Blog)
+			{
+				// An article: no limit to count down to, and room to write.
+				<label>@NetworkIcons.Named(network) <span class="count">markdown</span>
+				<textarea id="text-@Model.Post.Id-@network" name="texts[@network]" rows="16" disabled="@(Model.Locked.Contains(network))">@v?.Text</textarea>
+				</label>
+				continue;
+			}
+			<label>@NetworkIcons.Named(network) <span class="count" data-count-for="text-@Model.Post.Id-@network">@(v is null ? 0 : Lengths.Measure(network, v.Text)) / @Lengths.Limit(network)</span>
+				<textarea id="text-@Model.Post.Id-@network" name="texts[@network]" rows="@(network is Network.LinkedIn ? 8 : 4)" data-network="@network.Slug()" data-limit="@Lengths.Limit(network)" disabled="@(Model.Locked.Contains(network))">@v?.Text</textarea>
+			</label>
+			@if (Model.Locked.Contains(network)) { <p class="quiet small">@network already went out.</p> }
+		}
+		<button class="primary">Save</button>
+	@Forms.Token(HttpContext!)</form>
+</details>

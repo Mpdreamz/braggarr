@@ -1,0 +1,100 @@
+name: release
+
+# Run by hand from main: tags the version, builds the AOT binaries for every platform and the image, and makes the release.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to release, like 0.1.0
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  tag:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag v${{ inputs.version }}
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::$VERSION is not a version like 0.1.0"; exit 1; }
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+
+  binaries:
+    needs: tag
+    strategy:
+      matrix:
+        include:
+          - { os: ubuntu-latest, rid: linux-x64 }
+          - { os: ubuntu-24.04-arm, rid: linux-arm64 }
+          - { os: macos-latest, rid: osx-arm64 }
+          - { os: windows-latest, rid: win-x64 }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ inputs.version }}
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Publish
+        run: dotnet publish src/Braggarr.Cli -c Release -r ${{ matrix.rid }} -o out -p:DebugType=none -p:GenerateDocumentationFile=false
+      - name: Zip
+        shell: pwsh
+        run: |
+          $binary = if ($IsWindows) { 'out/braggarr.exe' } else { 'out/braggarr' }
+          Compress-Archive -Path $binary -DestinationPath braggarr-${{ matrix.rid }}.zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: braggarr-${{ matrix.rid }}
+          path: braggarr-${{ matrix.rid }}.zip
+
+  image:
+    needs: tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ inputs.version }}
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push the image
+        run: >
+          dotnet publish src/Braggarr.Cli -c Release -r linux-x64 -t:PublishContainer
+          -p:ContainerRegistry=ghcr.io '-p:ContainerImageTags="latest;${{ inputs.version }}"'
+
+  release:
+    needs: [binaries, image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Release v${{ inputs.version }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: gh release create "v$VERSION" dist/*.zip --repo "$GITHUB_REPOSITORY" --title "v$VERSION" --generate-notes

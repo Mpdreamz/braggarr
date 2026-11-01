@@ -1,0 +1,9 @@
+@inherits RazorSlice<PageModel>
+@implements IUsesLayout<Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => Model.Layout;
+}
+<article class="page">
+	<h1>@Model.Page.Title</h1>
+	@(new HtmlString(Model.Body.Html))
+</article>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="AngleSharp" />
+    <PackageReference Include="Nullean.Entities.CsCheck" />
+    <PackageReference Include="Nullean.Entities.CsCheck.FileSystem" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Braggarr.Web/Braggarr.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Braggarr.Services.Tests/Mp4Fixture.cs" Link="Mp4Fixture.cs" />
+    <!-- The scheduler's rules and its fake networks, shared with the run against in-memory fakes. -->
+    <Compile Include="../Braggarr.Services.Tests/SchedulerRules.cs" Link="SchedulerRules.cs" />
+    <Compile Include="../Braggarr.Services.Tests/Fakes.cs" Link="Fakes.cs" />
+  </ItemGroup>
+</Project>

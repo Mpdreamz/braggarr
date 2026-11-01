@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Application services over the domain's records. They reach the world only through the ports in Ports.cs;
+       the adapters implement them. A test keeps the references to the domain and Microsoft.Extensions abstractions. -->
+  <ItemGroup>
+    <ProjectReference Include="../Braggarr.Domain/Braggarr.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Braggarr.Services.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,118 @@
+@inherits RazorSlice<CalendarModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Calendar", Toolbar: true);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		var inv = global::System.Globalization.CultureInfo.InvariantCulture;
+		if (name == "Toolbar")
+		{
+<text>
+	<a class="tool" href="/Calendar?month=@(Model.Month - 1)"><svg class="icon"><use href="#i-left" /></svg><span>Previous</span></a>
+	<a class="tool" href="/Calendar"><svg class="icon"><use href="#i-calendar" /></svg><span>Today</span></a>
+	<a class="tool" href="/Calendar?month=@(Model.Month + 1)"><svg class="icon"><use href="#i-right" /></svg><span>Next</span></a>
+	<a class="tool" href="/Calendar?month=@Model.Month&rebalance=true"><svg class="icon"><use href="#i-sync" /></svg><span>Rebalance</span></a>
+	<span class="tool-gap"></span>
+	<span class="tool-label">@Model.First.ToString("MMMM yyyy", inv) · @Model.Clock.Zone.Id</span>
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@{
+	var inv = global::System.Globalization.CultureInfo.InvariantCulture;
+	var today = Model.Clock.Now.Date;
+}
+@if (Model.Message is { } message) { <p class="banner action">@message</p> }
+@if (Model.Rebalancing)
+{
+	var o = Model.Options;
+	<a class="modal-backdrop" href="/Calendar?month=@Model.Month" aria-label="Close"></a>
+	<dialog open class="modal" aria-labelledby="rebalance-title">
+		<form method="post" action="/Calendar?month=@Model.Month">
+			<h2 id="rebalance-title">Rebalance</h2>
+			<p class="quiet small">Spreads every post that has not gone out, of proposals and approved campaigns, over the days and hours below. A post that already keeps them stays; nothing moves earlier, and a campaign keeps its order and spacing. Campaigns you approved are approved again for their new times, unless the judge has to read them first.</p>
+			@if (Model.Problems.Count > 0)
+			{
+				<div class="banner problem"><ul>@foreach (var p in Model.Problems) { <li>@p</li> }</ul></div>
+			}
+			<fieldset class="rest-days">
+				<legend>Rest days: no posts at all</legend>
+				@foreach (var day in new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday })
+				{
+					<label class="check"><input type="checkbox" name="rest" value="@day" checked="@o.RestDays.Contains(day.ToString())"> @day.ToString()[..3]</label>
+				}
+			</fieldset>
+			<div class="row">
+				<label>Posts per day, per network <input type="number" name="perDay" min="1" max="@RebalanceOptions.MaxPerDay" value="@o.PerDay" required></label>
+				<label>From <input type="time" name="from" value="@o.From" required></label>
+				<label>To <input type="time" name="to" value="@o.To" required></label>
+			</div>
+			@if (Model.Preview is { Problems.Count: 0 } preview)
+			{
+				@if (preview.Items.Count == 0)
+				{
+					<p class="banner action">Everything already keeps these rules: nothing moves.</p>
+				}
+				else
+				{
+					<table class="table moves">
+						<thead><tr><th>Campaign</th><th>Post</th><th>From</th><th>To</th><th></th></tr></thead>
+						<tbody>
+							@foreach (var item in preview.Items)
+							{
+								<tr>
+									<td>@item.Title</td>
+									<td class="quiet small">@item.Move.Post</td>
+									<td>@Model.Clock.Full(item.Move.From)</td>
+									<td>@Model.Clock.Full(item.Move.To)</td>
+									<td>@if (item.InReview) { <span class="badge sending">in review</span> } else if (!item.StaysApproved) { <span class="badge failed">needs approving again</span> }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			}
+			<div class="actions">
+				<button class="@(Model.Preview is { Problems.Count: 0, Items.Count: > 0 } ? "" : "primary")" formaction="@Forms.Handler("/Calendar", "Preview")">Preview</button>
+				@if (Model.Preview is { Problems.Count: 0, Items.Count: > 0 } ready)
+				{
+					<button class="primary" formaction="@Forms.Handler("/Calendar", "Apply")">Move @ready.Items.Count @(ready.Items.Count == 1 ? "post" : "posts")</button>
+				}
+				<a class="button" href="/Calendar?month=@Model.Month">Close</a>
+			</div>
+		@Forms.Token(HttpContext!)</form>
+	</dialog>
+}
+<p class="legend small quiet">
+	<span class="key key-waiting"></span> planned <span class="key key-done"></span> went out <span class="key key-problem"></span> needs you
+	<span class="key key-held"></span> held <span class="key key-review"></span> waiting for review
+</p>
+<div class="month">
+	@foreach (var weekday in Model.Weeks[0])
+	{
+		<div class="weekday-head">@weekday.Day.ToString("ddd", inv)</div>
+	}
+	@foreach (var week in Model.Weeks)
+	{
+		@foreach (var (day, slots) in week)
+		{
+			<section class="day @(day == today ? "today" : "") @(day.Month != Model.First.Month ? "other-month" : "")" aria-label="@day.ToString("dddd d MMMM", inv)">
+				<header><span class="date">@day.Day</span></header>
+				@foreach (var slot in slots)
+				{
+					<a class="event event-@slot.Kind" href="@slot.Href" title="@slot.Campaign.Title: @(slot.Post.Angle ?? slot.Post.Id)@(slot.InReview ? " (waiting for review)" : "")">
+						<span class="event-line"><time>@slot.Local.ToString("HH:mm", inv)</time> <strong>@slot.Campaign.Title</strong></span>
+						<span class="dots">
+							@foreach (var (network, state) in slot.Networks)
+							{
+								<span class="dot dot-@state" title="@NetworkIcons.Name(network): @state" role="img" aria-label="@NetworkIcons.Name(network): @state">@NetworkIcons.Icon(network)</span>
+							}
+						</span>
+					</a>
+				}
+			</section>
+		}
+	}
+</div>

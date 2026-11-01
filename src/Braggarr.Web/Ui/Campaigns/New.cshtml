@@ -1,0 +1,45 @@
+@inherits RazorSlice<Braggarr.Web.Ui.Campaigns.NewModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("New campaign");
+}
+<p class="crumbs"><a href="/Campaigns">Campaigns</a> / new</p>
+<h1>New campaign</h1>
+@if (Model.Problems.Count > 0)
+{
+	<div class="banner problem"><ul>@foreach (var p in Model.Problems) { <li>@p</li> }</ul></div>
+}
+<form method="post" class="panel narrow">
+	<label>What it announces <input placeholder="Curb 1.0" required type="text" class="@(Model.Invalid("Title") ? "input-validation-error" : null)" data-val="true" data-val-required="The Title field is required." id="Title" name="Title" value="@Model.Field("Title", Model.Title)"></label>
+	<label>Project <input placeholder="curb" type="text" class="@(Model.Invalid("Project") ? "input-validation-error" : null)" data-val="true" data-val-required="The Project field is required." id="Project" name="Project" value="@Model.Field("Project", Model.Project)"></label>
+	<label>Links, one per line <textarea rows="2" placeholder="https://github.com/nullean/curb" id="Links" name="Links">
+@Model.Field("Links", Model.Links)</textarea></label>
+	<label>The brief: what is new, for whom, what to stress
+		<textarea rows="5" placeholder="1.0 means the output is stable. Lead with keeping diffs small; mention it runs as a dotnet tool." id="Brief" name="Brief">
+@Model.Field("Brief", Model.Brief)</textarea>
+	</label>
+	<fieldset class="networks-pick">
+		<legend>Networks</legend>
+		@foreach (var n in Networks.All)
+		{
+			<label class="check"><input type="checkbox" name="Networks" value="@n" checked="@Model.Networks.Contains(n)"> @NetworkIcons.Named(n)</label>
+		}
+	</fieldset>
+	<label>When, one time per line (@Model.Example). The first is the launch; the others follow up.
+		<textarea rows="3" class="@(Model.Invalid("Times") ? "input-validation-error" : null)" data-val="true" data-val-required="The Times field is required." id="Times" name="Times">
+@Model.Field("Times", Model.Times)</textarea>
+	</label>
+	<label>Post it again, written fresh
+		@{ var repeat = Model.Field("RepeatMonths", Model.RepeatMonths); }
+		<select class="@(Model.Invalid("RepeatMonths") ? "input-validation-error" : null)" data-val="true" data-val-required="The RepeatMonths field is required." id="RepeatMonths" name="RepeatMonths">
+			<option value="0" selected="@(repeat == "0")">never</option>
+			<option value="3" selected="@(repeat == "3")">3 months after the last post</option>
+			<option value="6" selected="@(repeat == "6")">6 months after</option>
+			<option value="12" selected="@(repeat == "12")">a year after</option>
+		</select>
+	</label>
+	<p class="quiet small">@(Model.CanDraft
+		? "Claude writes a variant for every network and time. You review them before anything goes out."
+		: "No Claude key is set up: the proposal opens without text, to write in the pull request.")</p>
+	<button class="primary">Propose</button>
+@Forms.Token(HttpContext!)</form>

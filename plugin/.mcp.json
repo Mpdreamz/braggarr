@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "braggarr": {
+      "type": "http",
+      "url": "${BRAGGARR_URL}/mcp",
+      "headers": {
+        "X-Api-Key": "${BRAGGARR_API_KEY}"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <GlobalPackageReference Include="MinVer" Version="7.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The domain's only dependency. Braggarr doubles as a real-world test bed for it: anything awkward goes in
+         docs/entities-notes.md. -->
+    <PackageVersion Include="Nullean.Entities" Version="0.1.1" />
+    <PackageVersion Include="Nullean.Entities.FileSystem" Version="0.1.1" />
+    <PackageVersion Include="Nullean.ScopedFileSystem" Version="0.5.0" />
+    <!-- 22.3.0: what Nullean.ScopedFileSystem builds against; the Entities file packages ask for 22.2.0 or later. -->
+    <PackageVersion Include="System.IO.Abstractions" Version="22.3.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageVersion Include="Nullean.Entities.AspNetCore" Version="0.1.1" />
+    <PackageVersion Include="Nullean.Entities.Extensions.DependencyInjection" Version="0.1.1" />
+    <PackageVersion Include="SharpYaml" Version="3.16.0" />
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="2.3.0" />
+    <PackageVersion Include="System.IO.Hashing" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
+    <!-- The blog and the braggarr CLI: all AOT-safe. -->
+    <PackageVersion Include="Markdig" Version="1.5.1" />
+    <PackageVersion Include="RazorSlices" Version="0.12.2" />
+    <PackageVersion Include="Nullean.Argh" Version="0.21.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tests. TUnit is pinned to the version Nullean.Entities.CsCheck is tested against. -->
+    <PackageVersion Include="Nullean.Entities.CsCheck" Version="0.1.1" />
+    <PackageVersion Include="Nullean.Entities.CsCheck.FileSystem" Version="0.1.1" />
+    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="22.3.0" />
+    <PackageVersion Include="CsCheck" Version="4.9.1" />
+    <PackageVersion Include="TUnit" Version="1.65.0" />
+    <PackageVersion Include="AwesomeAssertions" Version="9.6.0" />
+    <PackageVersion Include="AngleSharp" Version="1.7.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.0.0" />
+  </ItemGroup>
+</Project>

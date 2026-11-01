@@ -1,0 +1,16 @@
+{
+  "name": "braggarr",
+  "owner": {
+    "name": "Martijn Laarman"
+  },
+  "metadata": {
+    "description": "Braggarr's Claude Code plugin: propose campaigns from a session."
+  },
+  "plugins": [
+    {
+      "name": "braggarr",
+      "source": "./plugin",
+      "description": "Propose campaigns to Braggarr from a Claude Code session."
+    }
+  ]
+}

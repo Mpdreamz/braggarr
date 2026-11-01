@@ -1,0 +1,80 @@
+@inherits RazorSlice<Braggarr.Web.Ui.Settings.ProfilesModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Profiles", Toolbar: true);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		if (name == "Toolbar")
+		{
+<text>
+	<span class="tool-label">Profiles</span>
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@if (Model.Message is { } message) { <p class="banner action">@message</p> }
+@if (Model.Problems.Count > 0)
+{
+	<div class="banner problem"><ul>@foreach (var p in Model.Problems) { <li>@p</li> }</ul></div>
+}
+<p class="quiet">Someone who likes a post opens the profile next. Here is what each of your accounts shows them, what is missing, and Claude's suggestion from the briefs of the projects the account posts about. Bluesky, Mastodon, X and YouTube change from here; LinkedIn and Threads you paste yourself. Pictures and banners come with the artwork.</p>
+@if (Model.Views.Count == 0)
+{
+	<p class="empty">No accounts yet. <a href="/Settings?section=networks">Connect one</a>.</p>
+}
+<div class="profiles">
+	@foreach (var view in Model.Views)
+	{
+		var p = view.Profile;
+		var suggestion = Model.Suggested is { } s && s.Network == view.Network && s.Account == view.Account ? s.Suggestion : null;
+		<section class="panel profile">
+			<h2>@NetworkIcons.Named(view.Network) <span class="quiet">@view.Account</span>
+				@if (p?.Url is { } url) { <a class="small" href="@url">open</a> }
+			</h2>
+			@if (view.Problem is { } problem)
+			{
+				<p class="banner problem">@problem</p>
+			}
+			else if (p is not null)
+			{
+				<ul class="findings">
+					@foreach (var f in view.Findings)
+					{
+						<li class="finding"><span class="badge @(f.Ok ? "pass" : "warn")">@(f.Ok ? "ok" : "missing")</span> <strong>@Braggarr.Services.ProfileService.Name(f.Field)</strong> <span class="quiet small">@f.Advice</span></li>
+					}
+				</ul>
+				@if (!string.IsNullOrWhiteSpace(p.Bio)) { <p class="current-bio">@p.Bio</p> }
+				@if (Model.CanSuggest)
+				{
+					<form method="post" class="inline" action="@Forms.Handler("/Settings/Profiles", "Suggest")">
+						<input type="hidden" name="network" value="@view.Network">
+						<input type="hidden" name="account" value="@view.Account">
+						<button>@(suggestion is null ? "Suggest with Claude" : "Suggest again")</button>
+					@Forms.Token(HttpContext!)</form>
+				}
+				@if (suggestion is not null)
+				{
+					<p class="quiet small">@suggestion.Why</p>
+					@foreach (var (field, text, rows) in new (ProfileField, string?, int)[] { (ProfileField.DisplayName, suggestion.DisplayName, 1), (ProfileField.Bio, suggestion.Bio, 4), (ProfileField.Link, suggestion.Link, 1) })
+					{
+						@if (text is null || (field == ProfileField.Link && !Profiles.HasLinkField(view.Network))) { continue; }
+						var id = Braggarr.Web.Ui.Settings.ProfilesModel.Id(view.Network, view.Account, field);
+						<form method="post" class="suggested" action="@Forms.Handler("/Settings/Profiles", "Apply")">
+							<input type="hidden" name="network" value="@view.Network">
+							<input type="hidden" name="account" value="@view.Account">
+							<input type="hidden" name="field" value="@field">
+							<label for="@id">@Braggarr.Services.ProfileService.Name(field)
+								@if (field == ProfileField.Bio) { <span class="count">@Profiles.Length(view.Network, text) / @Profiles.BioLimit(view.Network)</span> }
+							</label>
+							@if (rows > 1) { <textarea id="@id" name="value" rows="@rows">@text</textarea> } else { <input id="@id" name="value" value="@text"> }
+							@if (Profiles.CanApply(view.Network, field)) { <button class="primary">Apply on @NetworkIcons.Name(view.Network)</button> }
+							else { <button type="button" data-copy="#@id">Copy</button> }
+						@Forms.Token(HttpContext!)</form>
+					}
+				}
+			}
+		</section>
+	}
+</div>

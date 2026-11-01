@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="CsCheck" />
+    <PackageReference Include="Nullean.Entities.CsCheck" />
+    <PackageReference Include="Nullean.Entities.CsCheck.FileSystem" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Braggarr.Blog/Braggarr.Blog.csproj" />
+  </ItemGroup>
+
+</Project>

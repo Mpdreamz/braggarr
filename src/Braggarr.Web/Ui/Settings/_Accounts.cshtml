@@ -1,0 +1,17 @@
+@inherits RazorSlice<IReadOnlyList<Braggarr.Web.Ui.Settings.IndexModel.AccountRow>>
+@if (Model.Count > 0)
+{
+	<ul class="accounts">
+		@foreach (var a in Model)
+		{
+			<li>
+				<span class="badge @(a.Warn ? "failed" : "published")">@a.Name@(a.Note is null ? "" : $", {a.Note}")</span>
+				@if (a.IsDefault) { <span class="quiet small">default</span> }
+				<form method="post" class="inline" action="@Forms.Handler("/Settings", "Disconnect", ("section", "networks"))">
+					<input type="hidden" name="network" value="@a.Network.Slug()">
+					<button name="name" value="@a.Name" class="link danger">Disconnect</button>
+				@Forms.Token(HttpContext!)</form>
+			</li>
+		}
+	</ul>
+}

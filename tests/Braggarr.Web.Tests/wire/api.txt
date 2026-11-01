@@ -1,0 +1,38 @@
+201 application/json; charset=utf-8
+{"slug":"hunch-0-3","title":"Hunch 0.3","project":"hunch","status":"proposed","networks":["bluesky","mastodon"],"links":[],"brief":"A faster index.","createdBy":"agent:release-bot","pullRequest":1,"pullRequestUrl":"https://github.com/me/posts/pull/1","posts":[{"id":"01-twice-as-fast","at":"2030-11-05T10:00:00+01:00","angle":"Twice as fast","networks":["bluesky","mastodon"],"points":[1],"variants":[{"network":"bluesky","text":"Hunch 0.3 on Bluesky.","length":21,"limit":300,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null},{"network":"mastodon","text":"Hunch 0.3 on Mastodon.","length":22,"limit":500,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null}]}],"repeatMonths":0,"points":[{"number":1,"text":"Twice as fast","wanted":[{"kind":"image","description":"A chart"}]}],"accounts":{},"judgement":null}
+
+400 application/problem+json
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"has-a-title":["A campaign needs a title."],"known-networks":["Every network is one of bluesky, mastodon, linkedin, threads, x, youtube, reddit, hackernews or blog."],"says-something":["Give talking points (preferred), a brief to find them in, or posts."]}}
+
+200 application/json; charset=utf-8
+[{"slug":"hunch-0-3","title":"Hunch 0.3","project":"hunch","status":"proposed","networks":["bluesky","mastodon"],"links":[],"brief":"A faster index.","createdBy":"agent:release-bot","pullRequest":1,"pullRequestUrl":"https://github.com/me/posts/pull/1","posts":[{"id":"01-twice-as-fast","at":"2030-11-05T10:00:00+01:00","angle":"Twice as fast","networks":["bluesky","mastodon"],"points":[1],"variants":[{"network":"bluesky","text":"Hunch 0.3 on Bluesky.","length":21,"limit":300,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null},{"network":"mastodon","text":"Hunch 0.3 on Mastodon.","length":22,"limit":500,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null}]}],"repeatMonths":0,"points":[{"number":1,"text":"Twice as fast","wanted":[{"kind":"image","description":"A chart"}]}],"accounts":{},"judgement":null}]
+
+200 application/json; charset=utf-8
+{"slug":"hunch-0-3","title":"Hunch 0.3","project":"hunch","status":"proposed","networks":["bluesky","mastodon"],"links":[],"brief":"A faster index.","createdBy":"agent:release-bot","pullRequest":1,"pullRequestUrl":"https://github.com/me/posts/pull/1","posts":[{"id":"01-twice-as-fast","at":"2030-11-05T10:00:00+01:00","angle":"Twice as fast","networks":["bluesky","mastodon"],"points":[1],"variants":[{"network":"bluesky","text":"Hunch 0.3 on Bluesky.","length":21,"limit":300,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null},{"network":"mastodon","text":"Hunch 0.3 on Mastodon.","length":22,"limit":500,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null}]}],"repeatMonths":0,"points":[{"number":1,"text":"Twice as fast","wanted":[{"kind":"image","description":"A chart"}]}],"accounts":{},"judgement":null}
+
+404 text/plain
+Status Code: 404; Not Found                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+
+200 application/json; charset=utf-8
+{"slug":"hunch-0-3","title":"Hunch 0.3","project":"hunch","status":"proposed","networks":["bluesky","mastodon"],"links":[],"brief":"A faster index.","createdBy":"agent:release-bot","pullRequest":1,"pullRequestUrl":"https://github.com/me/posts/pull/1","posts":[{"id":"01-twice-as-fast","at":"2030-11-05T10:00:00+01:00","angle":"Twice as fast","networks":["bluesky","mastodon"],"points":[1],"variants":[{"network":"bluesky","text":"Hunch 0.3 on Bluesky.","length":21,"limit":300,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null},{"network":"mastodon","text":"Hunch 0.3 on Mastodon.","length":22,"limit":500,"fits":true,"media":[{"path":"wanted:image","alt":"A chart","wanted":true}],"delivery":null,"url":null}]},{"id":"02-post","at":"2030-11-09T10:00:00+01:00","angle":null,"networks":["bluesky","mastodon"],"points":[],"variants":[{"network":"bluesky","text":"One more thing.","length":15,"limit":300,"fits":true,"media":[],"delivery":null,"url":null}]}],"repeatMonths":0,"points":[{"number":1,"text":"Twice as fast","wanted":[{"kind":"image","description":"A chart"}]}],"accounts":{},"judgement":null}
+
+400 application/problem+json
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"The campaign was not proposed.","status":400,"errors":{"campaign":["hunch-0-3 has no Bluesky variant for 01-launch."]}}
+
+202 application/json; charset=utf-8
+{"message":"Planning an introduction of nullean/curb; it opens as a proposal when it is ready."}
+
+400 application/problem+json
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"The campaign was not proposed.","status":400,"errors":{"campaign":["Name the repository as owner/name."]}}
+
+200 application/json; charset=utf-8
+[]
+
+400 text/plain; charset=utf-8
+Microsoft.AspNetCore.Http.BadHttpRequestException: Failed to read parameter "CampaignRequest request" from the request body as JSON.
+
+400 application/problem+json
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"The campaign was not proposed.","status":400,"errors":{"campaign":["hunch-0-3 has no post \"01-launch\"."]}}
+
+400 text/plain; charset=utf-8
+Microsoft.AspNetCore.Http.BadHttpRequestException: Required parameter "string post" was not provided from form.

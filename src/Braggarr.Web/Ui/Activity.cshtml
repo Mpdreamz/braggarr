@@ -1,0 +1,66 @@
+@inherits RazorSlice<ActivityModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Activity", Toolbar: true);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		if (name == "Toolbar")
+		{
+<text>
+	<nav class="filters">
+		<a class="@(Model.Tab == "queue" ? "current" : "")" href="/Activity?tab=queue">Queue</a>
+		<a class="@(Model.Tab == "history" ? "current" : "")" href="/Activity?tab=history">History</a>
+		<a class="@(Model.Tab == "events" ? "current" : "")" href="/Activity?tab=events">Events</a>
+	</nav>
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@if (Model.Tab == "events")
+{
+	<table class="table">
+		<thead><tr><th>When</th><th>Post</th><th>What happened</th></tr></thead>
+		<tbody>
+			@foreach (var (at, e) in Model.Events)
+			{
+				<tr><td class="nowrap">@Model.Clock.Full(at)</td><td>@e.Key</td><td>@e.GetType().Name</td></tr>
+			}
+		</tbody>
+	</table>
+	@if (Model.Events.Count == 0) { <p class="empty">Nothing has happened since Braggarr started.</p> }
+}
+else
+{
+	<table class="table">
+		<thead><tr><th></th><th>Campaign</th><th>Post</th><th>Network</th><th>When</th><th></th></tr></thead>
+		<tbody>
+			@foreach (var row in Model.Rows)
+			{
+				var d = row.Delivery;
+				<tr>
+					<td><span class="badge @d.State.ToString().ToLowerInvariant()">@Partials.State(d.State)</span></td>
+					<td><a href="/Campaigns/Detail?slug=@d.Key.Campaign">@(row.Campaign?.Title ?? d.Key.Campaign)</a></td>
+					<td>@d.Key.Post</td>
+					<td>@NetworkIcons.Named(d.Key.Network)</td>
+					<td class="nowrap">@(row.At is { } at ? Model.Clock.Full(at) : "")</td>
+					<td>
+						@if (d.Receipt is { } r)
+						{
+							<a class="icon-link" href="@r.Url" title="See it"><svg class="icon"><use href="#i-link" /></svg></a>
+						}
+						else if (d.Error is { } error)
+						{
+							<span class="quiet small">@error</span>
+						}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	@if (Model.Rows.Count == 0)
+	{
+		<p class="empty">@(Model.Tab == "history" ? "Nothing has gone out yet." : "Nothing is due in the next week.")</p>
+	}
+}

@@ -1,0 +1,33 @@
+name: braggarr
+description: Build a blog from markdown with braggarr, into static files ready for GitHub Pages or any host.
+
+branding:
+  icon: book-open
+  color: orange
+
+inputs:
+  path:
+    description: The site's folder (the one with braggarr.yml), relative to the repository.
+    required: false
+    default: "."
+  output:
+    description: Where the built site is written, relative to the repository. What an earlier build left there is removed.
+    required: false
+    default: .artifacts/site
+  strict:
+    description: "Fail on warnings too: a link that leads nowhere, an image without alt text, a date without an offset."
+    required: false
+    default: "false"
+  drafts:
+    description: Publish drafts and posts dated later, as a preview does.
+    required: false
+    default: "false"
+  url:
+    description: The site's address for this build, instead of the url in braggarr.yml.
+    required: false
+
+# The braggarr CLI as a containerless image: the Native AOT binary on a chiseled base. With no arguments and GITHUB_ACTIONS set,
+# it reads the inputs above from their INPUT_* variables and builds.
+runs:
+  using: docker
+  image: docker://ghcr.io/mpdreamz/braggarr-cli:edge

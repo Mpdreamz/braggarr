@@ -1,0 +1,19 @@
+@inherits RazorSlice<Braggarr.Domain.Campaign>
+@if (Model.Points.Count > 0)
+{
+	<section class="points">
+		<h2>Talking points <span class="quiet">· most important first</span></h2>
+		<ol>
+			@foreach (var point in Model.Points)
+			{
+				<li>
+					<span>@point.Text</span>
+					@foreach (var w in point.Wanted)
+					{
+						<span class="pill wanted">@(w.Kind == MediaKind.Video ? "video" : "image"): @w.Description</span>
+					}
+				</li>
+			}
+		</ol>
+	</section>
+}

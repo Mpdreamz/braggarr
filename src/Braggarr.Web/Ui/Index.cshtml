@@ -1,0 +1,65 @@
+@inherits RazorSlice<IndexModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new("Campaigns", Toolbar: true);
+
+	private string On(string? f) => Model.Filter == f ? "current" : "";
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		if (name == "Toolbar")
+		{
+<text>
+	<a class="tool" href="/Campaigns/New"><svg class="icon"><use href="#i-plus" /></svg><span>New campaign</span></a>
+	<form method="post" action="@Forms.Handler("/", "Sync")"><button class="tool"><svg class="icon"><use href="#i-sync" /></svg><span>Sync</span></button>@Forms.Token(HttpContext!)</form>
+	<span class="tool-gap"></span>
+	<nav class="filters">
+		<a class="@On(null)" href="/">All</a>
+		<a class="@On("active")" href="/?show=active">Active</a>
+		<a class="@On("held")" href="/?show=held">Held</a>
+		<a class="@On("done")" href="/?show=done">Done</a>
+	</nav>
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@if (Model.Problem is { } problem)
+{
+	<p class="banner problem">@problem</p>
+}
+@if (Model.NeedsYou.Count > 0)
+{
+	<section class="needs">
+		<h2>Needs you</h2>
+		@foreach (var (campaign, delivery) in Model.NeedsYou)
+		{
+			<a class="need need-@delivery.State.ToString().ToLowerInvariant()" href="/Campaigns/Detail?slug=@campaign.Slug">
+				<span class="badge @delivery.State.ToString().ToLowerInvariant()">@Partials.State(delivery.State)</span>
+				<strong>@campaign.Title</strong>
+				<span class="quiet">@delivery.Key.Post · @NetworkIcons.Named(delivery.Key.Network)</span>
+			</a>
+		}
+	</section>
+}
+@if (Model.Proposals.Count > 0 && Model.Filter is null)
+{
+	<h2 class="shelf">Waiting for review</h2>
+	<div class="posters">
+		@foreach (var card in Model.Proposals)
+		{
+			@:@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Poster.Create(card))
+		}
+	</div>
+}
+<h2 class="shelf">Campaigns</h2>
+@if (Model.Live.Count == 0)
+{
+	<p class="empty">Nothing here yet. Add a project to watch, propose a campaign, or point an agent at the API.</p>
+}
+<div class="posters">
+	@foreach (var card in Model.Live)
+	{
+		@:@await RenderPartialAsync(Braggarr.Web.Ui.Shared._Poster.Create(card))
+	}
+</div>

@@ -1,0 +1,114 @@
+@inherits RazorSlice<ProjectModel>
+@implements IUsesLayout<Braggarr.Web.Ui.Shared._Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => new(Model.Project, Toolbar: true);
+
+	private string Here => "/Projects/" + Forms.Segment(Model.Project);
+
+	protected override Task ExecuteSectionAsync(string name)
+	{
+		var w = Model.Watched;
+		if (name == "Toolbar")
+		{
+<text>
+	<a class="tool" href="/Projects"><svg class="icon"><use href="#i-left" /></svg><span>Projects</span></a>
+	@if (Model.CanSuggest)
+	{
+		<form method="post" action="@Forms.Handler(Here, "Suggest")">
+			<input type="hidden" name="project" value="@Model.Project">
+			<button class="tool"><svg class="icon"><use href="#i-logo" /></svg><span>Fill the brief with Claude</span></button>
+		@Forms.Token(HttpContext!)</form>
+	}
+	@if (w is not null) { <a class="tool" href="https://github.com/@w.Repository"><svg class="icon"><use href="#i-link" /></svg><span>@w.Repository</span></a> }
+</text>
+		}
+		return Task.CompletedTask;
+	}
+}
+@{
+	var b = Model.Brief;
+	var w = Model.Watched;
+}
+<header class="hero">
+	<div class="hero-text">
+		<h1>@Model.Project</h1>
+		@if (!string.IsNullOrWhiteSpace(b.Tldr)) { <p class="brief">@b.Tldr</p> }
+		<p class="pills">
+			@if (w is null) { <span class="pill">releases not watched</span> }
+			else { <span class="pill">last release seen: @(w.LastSeenTag ?? "not checked yet")</span> }
+			<span class="pill">@Model.Campaigns.Count @(Model.Campaigns.Count == 1 ? "campaign" : "campaigns")</span>
+		</p>
+	</div>
+</header>
+@if (Model.Message is { } message) { <p class="banner action">@message</p> }
+@if (Model.Problems.Count > 0)
+{
+	<div class="banner problem"><ul>@foreach (var p in Model.Problems) { <li>@p</li> }</ul></div>
+}
+<div class="grid project-grid">
+	<form method="post" class="panel brief-form" action="@Forms.Handler(Here, "SaveBrief")">
+		<h2>Brief</h2>
+		<p class="quiet small">What @Model.Project is, in your words. Claude writes every post about it from this, and the judge holds posts to it. Kept as <code>projects/@(ProjectBrief.Slug(Model.Project)).md</code> in the posts repo.@if (w is null) { <text> Watch its releases to have Claude suggest one from the repository.</text> }</p>
+		<input type="hidden" name="project" value="@Model.Project">
+		<label>TL;DR <span class="count">one line, at most @ProjectBrief.TldrLimit characters</span>
+			<input name="tldr" value="@b.Tldr" maxlength="@ProjectBrief.TldrLimit" required>
+		</label>
+		<label>What sets it apart
+			<textarea name="apart" rows="3" required>@b.Apart</textarea>
+		</label>
+		<label>Who it is for
+			<input name="audience" value="@b.Audience">
+		</label>
+		<label>Never say <span class="count">one per line</span>
+			<textarea name="avoid" rows="4">@string.Join("\n", b.Avoid)</textarea>
+		</label>
+		<label>Links <span class="count">one per line, as Label: https://…</span>
+			<textarea name="links" rows="3">@string.Join("\n", b.Links.Select(ProjectModel.LinkLine))</textarea>
+		</label>
+		<button class="primary">@(Model.IsSuggestion ? "Keep this brief" : "Save the brief")</button>
+	@Forms.Token(HttpContext!)</form>
+	<div class="stack">
+		@if (w is not null)
+		{
+			<form method="post" class="panel" action="@Forms.Handler(Here, "Watching")">
+				<h2>Releases</h2>
+				<p class="quiet small">A new release of <a href="https://github.com/@w.Repository">@w.Repository</a> becomes a proposed campaign.</p>
+				<input type="hidden" name="project" value="@Model.Project">
+				<fieldset class="networks-pick">
+					<legend>Announce on</legend>
+					@foreach (var n in Networks.All)
+					{
+						<label class="check"><input type="checkbox" name="networks" value="@n" checked="@w.Networks.Contains(n.Slug())"> @NetworkIcons.Named(n)</label>
+					}
+				</fieldset>
+				<label class="check"><input type="checkbox" name="askClaude" value="true" checked="@w.AskClaude"> Let Claude judge each release first</label>
+				<label class="check"><input type="checkbox" name="prereleases" value="true" checked="@w.IncludePrereleases"> Prereleases too</label>
+				@if (w.LastSkipped is { } skipped) { <p class="quiet small">Skipped @skipped.Tag: @skipped.Reason</p> }
+				<button class="primary">Save</button>
+			@Forms.Token(HttpContext!)</form>
+			<form method="post" class="inline" action="@Forms.Handler(Here, "Unwatch")">
+				<button name="repository" value="@w.Repository" class="link danger">Stop watching its releases</button>
+			@Forms.Token(HttpContext!)</form>
+		}
+		else
+		{
+			<form method="post" class="panel" action="@Forms.Handler(Here, "Watch")">
+				<h2>Releases</h2>
+				<input type="hidden" name="project" value="@Model.Project">
+				<label>Repository <input name="repository" placeholder="nullean/@ProjectBrief.Slug(Model.Project)" required></label>
+				<button class="primary">Watch its releases</button>
+			@Forms.Token(HttpContext!)</form>
+		}
+		<section class="panel">
+			<h2>Campaigns</h2>
+			@if (Model.Campaigns.Count == 0) { <p class="quiet small">None yet.</p> }
+			<ul class="project-campaigns">
+				@foreach (var (c, href) in Model.Campaigns)
+				{
+					<li><a href="@href">@c.Title</a> <span class="badge @(c.Status == CampaignStatus.Proposed ? "sending" : c.Status == CampaignStatus.Held ? "held" : "published")">@(c.Status == CampaignStatus.Proposed ? "in review" : c.Status.ToString().ToLowerInvariant())</span>
+					</li>
+				}
+			</ul>
+		</section>
+	</div>
+</div>

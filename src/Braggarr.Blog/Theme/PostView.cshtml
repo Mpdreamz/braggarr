@@ -1,0 +1,69 @@
+@inherits RazorSlice<PostModel>
+@implements IUsesLayout<Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => Model.Layout;
+}
+<article class="post h-entry">
+	<header>
+		<h1 class="p-name">@Model.Post.Title</h1>
+		<p class="meta">
+			<time class="dt-published" datetime="@LayoutModel.Iso(Model.Post.Date)">@LayoutModel.Day(Model.Post.Date)</time>
+			· @Model.Body.Minutes min read
+			@if (Model.Post.Draft)
+			{
+				<span class="draft">draft</span>
+			}
+		</p>
+		@if (Model.Post.Tags.Count > 0)
+		{
+			<ul class="tags" aria-label="Tags">
+				@foreach (var tag in Model.Post.Tags)
+				{
+					<li><a href="@Model.Layout.Href($"/tags/{tag}/")">#@tag</a></li>
+				}
+			</ul>
+		}
+	</header>
+	@if (Model.CoverHref is { } cover)
+	{
+		<img class="cover" src="@cover" alt="@Model.Post.CoverAlt">
+	}
+	<div class="e-content">
+		@(new HtmlString(Model.Body.Html))
+	</div>
+</article>
+@await RenderPartialAsync(AuthorCard.Create(Model.Layout))
+@if (Model.Newer is not null || Model.Older is not null)
+{
+	<nav class="pager" aria-label="More posts">
+		@if (Model.Older is { } older)
+		{
+			<a rel="prev" href="@Model.PostHref(older)">← @older.Title</a>
+		}
+		@if (Model.Newer is { } newer)
+		{
+			<a rel="next" href="@Model.PostHref(newer)">@newer.Title →</a>
+		}
+	</nav>
+}
+@if (Model.Layout.Config.Comments is { } giscus)
+{
+	<section class="comments" aria-label="Comments">
+		<script src="https://giscus.app/client.js"
+			data-repo="@giscus.Repo"
+			data-repo-id="@giscus.RepoId"
+			data-category="@giscus.Category"
+			data-category-id="@giscus.CategoryId"
+			data-mapping="@giscus.Mapping"
+			data-strict="1"
+			data-reactions-enabled="1"
+			data-emit-metadata="0"
+			data-input-position="top"
+			data-theme="preferred_color_scheme"
+			data-lang="@Model.Layout.Config.Language"
+			data-loading="lazy"
+			crossorigin="anonymous"
+			async></script>
+		<noscript><p>Comments are GitHub Discussions on <a href="https://github.com/@giscus.Repo/discussions">@giscus.Repo</a>.</p></noscript>
+	</section>
+}

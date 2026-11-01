@@ -1,0 +1,10 @@
+@inherits RazorSlice<TagModel>
+@implements IUsesLayout<Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => Model.Layout;
+}
+<h1>#@Model.Tag.Tag</h1>
+@foreach (var post in Model.Tag.Posts)
+{
+	@await RenderPartialAsync(PostCard.Create(new CardModel(post, Model.PostHref(post))))
+}

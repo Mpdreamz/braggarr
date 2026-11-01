@@ -1,0 +1,32 @@
+@inherits RazorSlice<IndexModel>
+@implements IUsesLayout<Layout, LayoutModel>
+@functions {
+	public LayoutModel LayoutModel => Model.Layout;
+}
+@if (Model.Number == 1)
+{
+	<section class="intro">
+		<p>@Model.Layout.Config.Description</p>
+	</section>
+}
+@if (Model.Posts.Count == 0)
+{
+	<p>Nothing here yet.</p>
+}
+@foreach (var post in Model.Posts)
+{
+	@await RenderPartialAsync(PostCard.Create(new CardModel(post, Model.PostHref(post))))
+}
+@if (Model.Pages > 1)
+{
+	<nav class="pager" aria-label="Pages">
+		@if (Model.Number < Model.Pages)
+		{
+			<a rel="next" href="@Model.Layout.Href(SitePlan.IndexPath(Model.Number + 1))">← Older</a>
+		}
+		@if (Model.Number > 1)
+		{
+			<a rel="prev" href="@Model.Layout.Href(SitePlan.IndexPath(Model.Number - 1))">Newer →</a>
+		}
+	</nav>
+}
