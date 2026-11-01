@@ -86,6 +86,8 @@ Problems show as annotations on the files in the pull request.
 | `static/` | Copied to the site's root as it is: `static/images/me.jpg` is `/images/me.jpg`. A `static/custom.css` is linked after the theme's |
 | `head.html`, `footer.html` | Markup added to every page's head and footer, as it is |
 | `_braggarr/profiles.yml` | Written by Braggarr: the owner's profiles, linked from the author card with `rel="me"` |
+| `_braggarr/projects.yml` | Written by Braggarr: the owner's projects in their groups, shown where a page says `{{ projects }}` |
+| `_braggarr/intro.md` | Written by Braggarr and merged by the owner: an about text, shown where a page says `{{ intro }}` |
 
 A name may start with its date, `2026-11-02-curb-1-0`. The date is the post's when its front matter has none, and the rest
 is its slug. Hidden folders (`.git`, `.github`), `node_modules`, and anything reached through a link are never read.
@@ -114,6 +116,56 @@ feed_size: 20
 
 Profile links are not set here: Braggarr writes them from the networks the owner connected. A key the site does not know is
 an error, so a typo is not silently ignored.
+
+## Sections of a page
+
+A page can show what Braggarr wrote into `_braggarr/`: a paragraph that is only `{{ name }}` is replaced by that section, and
+the page's own text stays around it. Only pages have sections; in a post, or anywhere else in a paragraph, `{{ projects }}` is
+text.
+
+```markdown
+---
+title: About
+---
+
+{{ intro }}
+
+## What I make
+
+{{ projects }}
+
+## Elsewhere
+
+{{ profiles }}
+```
+
+| Section | Shows |
+|---|---|
+| `{{ intro }}` | `_braggarr/intro.md`, as markdown |
+| `{{ projects }}` | Each group of `_braggarr/projects.yml`, in order, with its description. Each project gets its line, its links, its language, its stars and latest release, and the posts on this site whose `project:` names it |
+| `{{ profiles }}` | The profiles of `_braggarr/profiles.yml`, with `rel="me"` |
+
+A section the theme does not know, or whose file the site lacks, is a warning, so `--strict` fails on it. The stars and the
+release are what the file says when the site is built. A page with projects also loads a small script that asks GitHub's API
+for today's (once an hour per reader, kept in the browser): without JavaScript, or past GitHub's rate limit, the page keeps
+the built values.
+
+```yaml
+# _braggarr/projects.yml
+groups:
+  - title: Developer tools
+    description: Small tools that stay out of the way.
+    projects:
+      - name: curb
+        repo: nullean/curb                 # owner/name on GitHub
+        url: https://curb.example.com/     # where the name links; the repository when left out
+        tldr: A C# formatter that keeps diffs small.
+        language: C#
+        stars: 37
+        release: { tag: 0.10.1, date: "2026-11-01T10:34:25Z", url: https://github.com/nullean/curb/releases/tag/0.10.1 }
+        links:
+          - { title: Benchmarks, url: https://curb.example.com/benchmarks/ }
+```
 
 ## Front matter
 

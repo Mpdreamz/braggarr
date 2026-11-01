@@ -14,6 +14,8 @@ internal static partial class SiteYaml
 
 	public static ProfilesDocument Profiles(string yaml) => YamlSerializer.Deserialize(yaml, SiteYamlContext.Default.ProfilesDocument) ?? new ProfilesDocument();
 
+	public static ProjectsDocument Projects(string yaml) => YamlSerializer.Deserialize(yaml, SiteYamlContext.Default.ProjectsDocument) ?? new ProjectsDocument();
+
 	public static string Write(NewPost front) => YamlSerializer.Serialize(front, SiteYamlContext.Default.NewPost);
 
 	public static string Write(ProfilesDocument profiles) => YamlSerializer.Serialize(profiles, SiteYamlContext.Default.ProfilesDocument);
@@ -142,9 +144,48 @@ public sealed class ProfileDocument
 	public string? Url { get; set; }
 }
 
+/// <summary><c>_braggarr/projects.yml</c>: the owner's projects in their groups, written by Braggarr.</summary>
+public sealed class ProjectsDocument
+{
+	public List<GroupDocument>? Groups { get; set; }
+}
+
+public sealed class GroupDocument
+{
+	public string? Title { get; set; }
+	public string? Description { get; set; }
+	public List<ProjectDocument>? Projects { get; set; }
+}
+
+public sealed class ProjectDocument
+{
+	public string? Name { get; set; }
+	public string? Repo { get; set; }
+	public string? Url { get; set; }
+	public string? Tldr { get; set; }
+	public List<LinkDocument>? Links { get; set; }
+	public ReleaseDocument? Release { get; set; }
+	public int? Stars { get; set; }
+	public string? Language { get; set; }
+}
+
+public sealed class LinkDocument
+{
+	public string? Title { get; set; }
+	public string? Url { get; set; }
+}
+
+public sealed class ReleaseDocument
+{
+	public string? Tag { get; set; }
+	public string? Date { get; set; }
+	public string? Url { get; set; }
+}
+
 [YamlSerializable(typeof(ConfigDocument))]
 [YamlSerializable(typeof(FrontMatter))]
 [YamlSerializable(typeof(ProfilesDocument))]
+[YamlSerializable(typeof(ProjectsDocument))]
 [YamlSerializable(typeof(NewPost))]
 [YamlSerializable(typeof(PublishedFront))]
 [YamlSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, DefaultIgnoreCondition = YamlIgnoreCondition.WhenWritingNull)]

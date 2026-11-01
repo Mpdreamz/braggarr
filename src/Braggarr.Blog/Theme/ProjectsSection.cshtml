@@ -1,0 +1,59 @@
+@inherits RazorSlice<ProjectsModel>
+<div class="projects">
+	@foreach (var group in Model.Groups)
+	{
+		<section class="project-group" aria-labelledby="@Segments.Slug(group.Title)">
+			<h2 id="@Segments.Slug(group.Title)">@group.Title</h2>
+			@if (group.Description is { Length: > 0 } description)
+			{
+				<p class="group-description">@description</p>
+			}
+			<ul class="project-list">
+				@foreach (var project in group.Projects)
+				{
+					var posts = Model.PostsAbout(project).ToList();
+					<li class="project" data-project-repo="@project.Repository">
+						<h3><a href="@project.Href">@project.Name</a></h3>
+						<p class="project-meta">
+							@if (project.Language is { } language)
+							{
+								<span class="language">@language</span>
+							}
+							<span class="stars" data-stars hidden="@(project.Stars is null)"><span aria-hidden="true">★</span> <span data-count>@(project.Stars is { } stars ? ProjectsModel.Count(stars) : "")</span><span class="visually-hidden"> stars</span></span>
+							@if (project.Release is { } release)
+							{
+								<a class="release" data-release href="@release.Url"><span data-tag>@release.Tag</span> <time datetime="@LayoutModel.Iso(release.Date)">@LayoutModel.Day(release.Date)</time></a>
+							}
+							else
+							{
+								<a class="release" data-release hidden><span data-tag></span> <time></time></a>
+							}
+						</p>
+						@if (project.Tldr is { Length: > 0 } tldr)
+						{
+							<p class="tldr">@tldr</p>
+						}
+						@if (project.Links.Count > 0)
+						{
+							<ul class="project-links">
+								@foreach (var link in project.Links)
+								{
+									<li><a href="@link.Url">@link.Title</a></li>
+								}
+							</ul>
+						}
+						@if (posts.Count > 0)
+						{
+							<p class="project-posts">Written about here:
+								@for (var i = 0; i < posts.Count; i++)
+								{
+									<a href="@Model.PostHref(posts[i])">@posts[i].Title</a>@(i + 1 < posts.Count ? ", " : "")
+								}
+							</p>
+						}
+					</li>
+				}
+			</ul>
+		</section>
+	}
+</div>

@@ -82,6 +82,15 @@ public static class Segments
 			&& (segments[^1].Length == 0 || segments[^1][0] != '.');
 	}
 
+	/// <summary>
+	/// A GitHub repository as <c>owner/name</c>: letters, digits and dashes for the owner, and dots and underscores too for the name,
+	/// which is never <c>.</c> or <c>..</c>. The page asks GitHub about it by that name.
+	/// </summary>
+	public static bool IsRepository(string repository) =>
+		repository.Split('/') is [var owner, var name]
+		&& owner.Length is > 0 and <= 39 && owner.All(c => char.IsAsciiLetterOrDigit(c) || c == '-')
+		&& name.Length is > 0 and <= 100 && name is not ("." or "..") && name.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '.' or '_');
+
 	/// <summary>A slug from a title: "Curb 1.0 is out!" becomes "curb-1-0-is-out". Braggarr's own rule, so new posts get the same.</summary>
 	public static string Slug(string title)
 	{

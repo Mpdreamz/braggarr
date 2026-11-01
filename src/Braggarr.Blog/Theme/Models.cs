@@ -74,7 +74,26 @@ public sealed record ArchiveModel(LayoutModel Layout)
 	public string PostHref(BlogPost post) => Layout.Href(post.Permalink(Layout.Config));
 }
 
-public sealed record PageModel(LayoutModel Layout, Page Page, Rendered Body);
+public sealed record PageModel(LayoutModel Layout, Page Page, Rendered Body)
+{
+	/// <summary>The intro, rendered, when the page shows it.</summary>
+	public Rendered? Intro { get; init; }
+
+	/// <summary>The script that asks GitHub for today's stars and releases, when the page shows projects.</summary>
+	public string? Script { get; init; }
+}
+
+/// <summary>The owner's projects in their groups, each with the published posts about it.</summary>
+public sealed record ProjectsModel(LayoutModel Layout)
+{
+	public ValueList<ProjectGroup> Groups => Layout.Site.Groups;
+
+	public IEnumerable<BlogPost> PostsAbout(Project project) => Layout.Plan.Published.Where(project.IsAbout);
+
+	public string PostHref(BlogPost post) => Layout.Href(post.Permalink(Layout.Config));
+
+	public static string Count(int stars) => stars.ToString("N0", CultureInfo.InvariantCulture);
+}
 
 /// <summary>A page at an old path that sends readers on to <paramref name="To"/>, a full address.</summary>
 public sealed record RedirectModel(string To, string Title);
