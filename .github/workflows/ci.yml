@@ -82,7 +82,7 @@ jobs:
           cp -r examples/site/. "$site"
           docker run --rm --workdir /github/workspace -v "$site:/github/workspace" \
             -e GITHUB_ACTIONS=true -e INPUT_STRICT=true -e INPUT_OUTPUT=.artifacts/site \
-            mpdreamz/braggarr-cli:ci
+            mpdreamz/braggarr:ci
           test -f "$site/.artifacts/site/posts/welcome/index.html"
 
   edge:
@@ -126,7 +126,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       # The runner starts the action's container without that sign-in, so the image is pulled first, signed in.
-      - run: docker pull ghcr.io/mpdreamz/braggarr-cli:edge
+      - run: docker pull ghcr.io/mpdreamz/braggarr:edge
       - name: The action builds the example site
         uses: ./
         with:

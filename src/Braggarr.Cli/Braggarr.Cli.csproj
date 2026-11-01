@@ -16,7 +16,7 @@
        variant, for ICU and time zones, which the server uses. It runs as the GitHub runner's user (1001), so the action can
        write into the checked-out workspace. The registry and tags come from the workflow. -->
   <PropertyGroup>
-    <ContainerRepository>mpdreamz/braggarr-cli</ContainerRepository>
+    <ContainerRepository>mpdreamz/braggarr</ContainerRepository>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime-deps:10.0-noble-chiseled-extra</ContainerBaseImage>
     <ContainerUser>1001:1001</ContainerUser>
   </PropertyGroup>
